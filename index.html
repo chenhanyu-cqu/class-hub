@@ -60,19 +60,74 @@
   'use strict';
 
   var APP_ORIGIN = 'https://class-hub-24937.app.workbuddy.host';
+  var BASE_TITLE = document.title;
+  var lastN = -1;
+
+  /* ---- 图标红点：桌面图标角标 + 标签页标题 + 标签页图标，三个一起上 ----
+     光靠 setAppBadge 在电脑浏览器里是不生效的（它只对"装到桌面"的 PWA 有用），
+     所以标题前面挂数字、图标上画红点，两者在任何浏览器都看得见。 */
+  var ICON = new Image();
+  var iconReady = false;
+  ICON.onload = function () { iconReady = true; if (lastN >= 0) paintFav(lastN); };
+  ICON.src = 'icon-192.png';
+
+  function rrect(x, X, Y, W, H, R) {
+    if (x.roundRect) { x.beginPath(); x.roundRect(X, Y, W, H, R); return; }
+    x.beginPath();
+    x.moveTo(X + R, Y);
+    x.lineTo(X + W - R, Y); x.quadraticCurveTo(X + W, Y, X + W, Y + R);
+    x.lineTo(X + W, Y + H - R); x.quadraticCurveTo(X + W, Y + H, X + W - R, Y + H);
+    x.lineTo(X + R, Y + H); x.quadraticCurveTo(X, Y + H, X, Y + H - R);
+    x.lineTo(X, Y + R); x.quadraticCurveTo(X, Y, X + R, Y);
+    x.closePath();
+  }
+
+  function paintFav(n) {
+    try {
+      var c = document.createElement('canvas');
+      c.width = c.height = 64;
+      var x = c.getContext('2d');
+      if (!x) return;
+      if (iconReady) x.drawImage(ICON, 0, 0, 64, 64);
+      else { x.fillStyle = '#2f6feb'; x.fillRect(0, 0, 64, 64); }
+      if (n) {
+        var t = n > 99 ? '99+' : String(n);
+        var w = t.length > 2 ? 34 : t.length > 1 ? 30 : 24;
+        x.fillStyle = '#e8503f';
+        rrect(x, 62 - w, 38, w, 24, 12);
+        x.fill();
+        x.strokeStyle = '#fff'; x.lineWidth = 3; x.stroke();
+        x.fillStyle = '#fff';
+        x.font = 'bold ' + (t.length > 2 ? 17 : 19) + 'px -apple-system,Arial,sans-serif';
+        x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillText(t, 62 - w / 2, 51);
+      }
+      var l = document.querySelector('link[rel~="icon"]');
+      if (!l) { l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l); }
+      l.href = c.toDataURL('image/png');
+    } catch (err) { /* 画不出来不影响别的 */ }
+  }
+
+  function applyBadge(n) {
+    n = Math.max(0, Number(n) || 0);
+    if (n === lastN) return;
+    lastN = n;
+    document.title = n ? '(' + (n > 99 ? '99+' : n) + ') ' + BASE_TITLE : BASE_TITLE;
+    paintFav(n);
+    try {
+      if (navigator.setAppBadge) {
+        if (n > 0) { var p = navigator.setAppBadge(n); if (p && p.catch) p.catch(function () {}); }
+        else if (navigator.clearAppBadge) { var q = navigator.clearAppBadge(); if (q && q.catch) q.catch(function () {}); }
+      }
+    } catch (err) { /* 浏览器不支持就算了 */ }
+  }
 
   /* ---- 桌面图标角标：小站把未读总数 postMessage 过来，这里负责设/清 ---- */
   window.addEventListener('message', function (e) {
     if (e.origin !== APP_ORIGIN) return;
     var d = e.data || {};
     if (d.type !== 'class-hub:badge') return;
-    var n = Math.max(0, Number(d.count) || 0);
-    try {
-      if (navigator.setAppBadge) {
-        if (n > 0) navigator.setAppBadge(n);
-        else navigator.clearAppBadge();
-      }
-    } catch (err) { /* 浏览器不支持就算了，站内红点还在 */ }
+    applyBadge(d.count);
   });
 
   /* ---- Service Worker：让「添加到主屏幕」变成可安装的 PWA ---- */

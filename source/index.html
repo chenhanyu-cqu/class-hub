@@ -191,6 +191,19 @@ body.signed-in .sidebar{display:flex;}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .act-bar button{flex:0 0 auto;}
+/* 有人给你发私信时冒出来的提示条（压在互动条上面，两条同时在就往上让位） */
+.dm-bar{
+  bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:8950;
+  background:linear-gradient(135deg,#2f9e63,#46c184);
+  width:max-content;max-width:calc(100vw - 32px);
+  padding:10px 10px 10px 15px;
+}
+.dm-bar.stacked{bottom:calc(130px + env(safe-area-inset-bottom,0px));}
+.dm-bar span{
+  min-width:0;flex:0 1 auto;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dm-bar button{flex:0 0 auto;}
 @keyframes updIn{from{opacity:0;transform:translate(-50%,10px);}to{opacity:1;transform:translate(-50%,0);}}
 .err{margin:6px 0 0;font-size:12px;color:var(--danger);}
 .hint{margin:14px 0 0;font-size:11.5px;color:var(--text-3);line-height:1.7;text-align:center;}
@@ -2207,6 +2220,12 @@ body.no-motion{scroll-behavior:auto;}
 <div class="upd-bar act-bar" id="actBar">
   <span id="actBarTxt"></span>
   <button id="actGo" type="button">去看看</button>
+</div>
+
+<!-- 有人发私信时的提示条 -->
+<div class="upd-bar dm-bar" id="dmBar">
+  <span id="dmBarTxt"></span>
+  <button id="dmGo" type="button">看消息</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
@@ -5263,7 +5282,7 @@ $('albGrid').addEventListener('click', e => {
    函数里用 auth.uid() 卡死「只给我看我自己参与的那部分」。
    谁和谁聊、聊了什么，第三个人（包括团支书）都看不到。 */
 
-const DM = { threads: [], msgs: [], peer: '', timer: null, tab: 'chat', urls: {}, imgBusy: {}, stick: true };
+const DM = { threads: [], msgs: [], peer: '', timer: null, tab: 'chat', urls: {}, imgBusy: {}, stick: true, seen: null, notice: '' };
 const ACT = { rows: [] };
 
 function dmUnreadTotal () {
@@ -5297,7 +5316,7 @@ function renderDmBadge () {
   syncAppBadge();
 }
 
-/* 未读数喂给两处：侧栏「通知」红点 + 桌面图标角标（外壳页负责真正去设角标） */
+/* 未读数喂给三处：侧栏红点、浏览器标签页（标题+图标）、桌面图标角标 */
 function syncAppBadge () {
   const me = !isGuest && !!profile;
   const nN = me ? S.notices.filter(n => !S.reads.some(r => r.notice_id === n.id && r.owner_id === myUid)).length : 0;
@@ -5309,12 +5328,84 @@ function syncAppBadge () {
     else { dot.style.display = ''; dot.textContent = nN > 99 ? '99+' : String(nN); }
   }
 
+  paintTabBadge(total);
+
   /* 被 GitHub Pages 外壳嵌着时，把总数报给外层，由它设桌面图标上的红点 */
   try {
     if (window.parent && window.parent !== window) {
       window.parent.postMessage({ type: 'class-hub:badge', count: total }, '*');
+    } else if (navigator.setAppBadge) {
+      /* 直接打开（含装到桌面的情况）时自己设一遍 */
+      if (total > 0) navigator.setAppBadge(total).catch(() => {});
+      else if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {});
     }
-  } catch (e) { /* 单独打开时没有 parent，忽略 */ }
+  } catch (e) { /* 浏览器不支持就算了，站内红点还在 */ }
+}
+
+/* 标签页上也要看得见没读的条数：标题前面挂 (3)，图标右下角加个红点。
+   电脑上没装到桌面时，这是唯一能在切走页面之前提醒到人的地方。 */
+/* 画圆角矩形：老一点的 Safari 没有 roundRect，自己补一个 */
+function rrect (x, X, Y, W, H, R) {
+  if (x.roundRect) { x.beginPath(); x.roundRect(X, Y, W, H, R); return; }
+  x.beginPath();
+  x.moveTo(X + R, Y);
+  x.lineTo(X + W - R, Y); x.quadraticCurveTo(X + W, Y, X + W, Y + R);
+  x.lineTo(X + W, Y + H - R); x.quadraticCurveTo(X + W, Y + H, X + W - R, Y + H);
+  x.lineTo(X + R, Y + H); x.quadraticCurveTo(X, Y + H, X, Y + H - R);
+  x.lineTo(X, Y + R); x.quadraticCurveTo(X, Y, X + R, Y);
+  x.closePath();
+}
+
+const TAB_ICON = (function () {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const x = c.getContext('2d');
+  if (!x) return null;
+  const g = x.createLinearGradient(0, 0, 0, 64);
+  g.addColorStop(0, '#4a8af5'); g.addColorStop(1, '#245bc8');
+  x.fillStyle = g;
+  rrect(x, 2, 2, 60, 60, 14); x.fill();
+  x.fillStyle = '#fff';
+  x.font = 'bold 38px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  try { x.fillText('班', 32, 34); } catch (e) {}
+  return c;
+})();
+
+let tabBadgeNow = -1;
+function paintTabBadge (n) {
+  const k = Math.max(0, Number(n) || 0);
+  if (k === tabBadgeNow) return;
+  tabBadgeNow = k;
+
+  document.title = (k ? '(' + (k > 99 ? '99+' : k) + ') ' : '') + '班级小站 · 26机智11班';
+
+  if (!TAB_ICON) return;
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const x = c.getContext('2d');
+    x.drawImage(TAB_ICON, 0, 0);
+    if (k) {
+      const t = k > 99 ? '99+' : String(k);
+      const w = t.length > 2 ? 34 : t.length > 1 ? 30 : 24;
+      x.fillStyle = '#e8503f';
+      /* 右下角画个胶囊，别挡中间的字 */
+      rrect(x, 62 - w, 38, w, 24, 12); x.fill();
+      x.strokeStyle = '#fff'; x.lineWidth = 3; x.stroke();
+      x.fillStyle = '#fff';
+      x.font = 'bold ' + (t.length > 2 ? 17 : 19) + 'px -apple-system,Arial,sans-serif';
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(t, 62 - w / 2, 51);
+    }
+    let link = document.querySelector('link[rel~="icon"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = c.toDataURL('image/png');
+  } catch (e) { /* 画不出来也别影响别的 */ }
 }
 
 async function loadAct () {
@@ -5383,6 +5474,7 @@ function switchMsg (mode) {
     dmStopPoll();
     loadAct().then(() => { renderAct(); markActRead(); });
   } else {
+    hideDmBar();
     $('actWrap').style.display = 'none';
     $('dmChatWrap').style.display = DM.peer ? '' : 'none';
     $('dmListWrap').style.display = DM.peer ? 'none' : '';
@@ -5408,7 +5500,7 @@ function openActHole (holeId) {
 }
 
 async function loadDm () {
-  if (isGuest) { DM.threads = []; renderDmBadge(); return; }
+  if (isGuest) { DM.threads = []; DM.seen = null; hideDmBar(); renderDmBadge(); return; }
   try {
     const { data } = await cloud.database.rpc('list_dm_threads');
     DM.threads = (data || []).map(t => ({
@@ -5417,8 +5509,40 @@ async function loadDm () {
       unread: Number(t.unread || 0), mine: !!t.mine_last
     }));
   } catch (e) { DM.threads = []; }
+  dmCheckNew();
   renderDmBadge();
 }
+
+/* 跟上一轮比一比，谁新发了消息 —— 界面切到哪个页都要能提醒到，
+   所以在拉列表时就判定，不依赖「消息」页有没有打开。 */
+function dmCheckNew () {
+  const prev = DM.seen;
+  const now = {};
+  DM.threads.forEach(t => { now[t.name] = t.unread; });
+
+  if (prev) {
+    const fresh = DM.threads
+      .filter(t => t.unread > (prev[t.name] || 0) && t.name !== DM.peer)
+      .map(t => ({ name: t.name, n: t.unread - (prev[t.name] || 0) }));
+    /* 正在看消息页的列表时，红点本身就是提示，不再压一条横幅 */
+    const onList = $('page-dm').classList.contains('on') &&
+                   DM.tab === 'chat' && !DM.peer;
+    if (fresh.length && !onList) showDmBar(fresh);
+    else if (!fresh.length && !dmUnreadTotal()) hideDmBar();
+  }
+  DM.seen = now;
+}
+
+function showDmBar (fresh) {
+  const n = fresh.reduce((s, f) => s + f.n, 0);
+  DM.notice = fresh[0].name;
+  $('dmBarTxt').textContent = fresh.length > 1
+    ? (fresh[0].name + ' 等 ' + fresh.length + ' 人给你发了 ' + n + ' 条新消息')
+    : (fresh[0].name + ' 给你发了 ' + (n > 1 ? n + ' 条新消息' : '条新消息'));
+  $('dmBar').classList.toggle('stacked', $('actBar').classList.contains('on'));
+  $('dmBar').classList.add('on');
+}
+function hideDmBar () { $('dmBar').classList.remove('on'); }
 
 function renderDmThreads () {
   const n = DM.threads.length;
@@ -5446,6 +5570,7 @@ function dmPeerInfo (name) {
 
 async function openDm (name) {
   if (isGuest) { toast('登录后才能私信'); return; }
+  hideDmBar();
   DM.peer = name;
   DM.stick = true;              /* 刚进对话：先跟随最新一条 */
   const p = dmPeerInfo(name);
@@ -5498,6 +5623,9 @@ async function loadDmMsgs (name, quiet) {
   try { await cloud.database.rpc('mark_dm_read', { p_peer_name: name }); } catch (e) {}
   const t = DM.threads.find(x => x.name === name);
   if (t && t.unread) { t.unread = 0; renderDmBadge(); }
+  /* 看过了就把基线一起清零，不然下一条新消息会被当成旧的漏掉 */
+  if (DM.seen) DM.seen[name] = 0;
+  if (!dmUnreadTotal()) hideDmBar();
 }
 
 function renderDmMsgs () {
@@ -5822,14 +5950,15 @@ function msgStartPoll () {
 function msgStopPoll () { if (MSG.timer) { clearInterval(MSG.timer); MSG.timer = null; } }
 
 async function msgTick () {
-  if (isGuest || document.hidden || actBusy) return;
+  /* 页面切到后台也照拉：标签页标题 / 桌面图标上的红点就是这时候才有用的 */
+  if (isGuest || actBusy) return;
   actBusy = true;
   try {
     const before = actUnreadTotal();
     await loadAct();
     const after = actUnreadTotal();
     const onAct = $('page-dm').classList.contains('on') && DM.tab === 'act';
-    if (onAct) {
+    if (onAct && !document.hidden) {
       if (after > before) renderAct();
       await markActRead();
     } else if (after > before) {
@@ -5837,9 +5966,12 @@ async function msgTick () {
     } else if (!after) {
       $('actBar').classList.remove('on');
     }
-    if (!DM.peer) {
-      await loadDm();
-      if ($('page-dm').classList.contains('on') && DM.tab === 'chat') renderDmThreads();
+    /* 私信每轮都拉一遍：不管人在哪个页面、是不是正跟别人聊着，
+       未读总数都得算得准，红点才不会漏 */
+    await loadDm();
+    if (!document.hidden && $('page-dm').classList.contains('on') &&
+        DM.tab === 'chat' && !DM.peer) {
+      renderDmThreads();
     }
   } catch (e) { /* 网络抖动就下次再说 */ }
   actBusy = false;
@@ -5871,6 +6003,12 @@ $('actGo').addEventListener('click', async () => {
   await markActRead();
   if (top.kind === 'pat') setActiveTab('park');
   else openActHole(top.holeId);
+});
+/* 点私信提示条：直接进那个人的对话 */
+$('dmGo').addEventListener('click', () => {
+  const who = DM.notice;
+  hideDmBar();
+  if (who) openDm(who); else setActiveTab('dm');
 });
 /* 从别的 App 切回来 / 手机上"不删后台"再打开时立刻补一次，
    不然界面停在离开前的样子，新消息得手动刷新才看得到 */
