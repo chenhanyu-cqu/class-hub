@@ -416,7 +416,7 @@ body.signed-in .sidebar{display:flex;}
 .ns-foot button:disabled{opacity:.55;cursor:default;}
 
 /* ---------- 私信 ---------- */
-#sbDm{position:relative;}
+.sb-nav button{position:relative;}
 .sb-dot{
   position:absolute;top:5px;right:50%;transform:translateX(13px);
   min-width:15px;height:15px;padding:0 4px;border-radius:8px;
@@ -1433,7 +1433,7 @@ body.no-motion{scroll-behavior:auto;}
   .sb-title h1{margin:0;font-size:15px;font-weight:600;}
   .sb-title p{margin:0;font-size:11px;color:var(--text-3);}
   .sb-nav{gap:4px;}
-  .sb-dot{top:9px;right:auto;left:32px;transform:none;}
+  .sb-dot{top:50%;right:10px;left:auto;transform:translateY(-50%);}
   .sb-nav button{
     flex-direction:row;justify-content:flex-start;gap:10px;
     font-size:14px;color:var(--text-2);padding:11px 12px;text-align:left;
@@ -1496,14 +1496,17 @@ body.no-motion{scroll-behavior:auto;}
       <button data-page="todo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.3 4.6-4.8"/></svg>
         待办
+        <span class="sb-dot" id="todoDot" style="display:none">0</span>
       </button>
       <button data-page="cal">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M7.5 13h2M11 13h2M14.5 13h2M7.5 16.5h2M11 16.5h2"/></svg>
         日历
+        <span class="sb-dot" id="calDot" style="display:none">0</span>
       </button>
       <button data-page="lib" id="sbLib">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 3.8h11.6v16.4l-5.8-3.5-5.8 3.5Z"/><path d="M9.2 8.2h5.6M9.2 11.4h4"/></svg>
         信息栏
+        <span class="sb-dot" id="libDot" style="display:none">0</span>
       </button>
       <button data-page="dm" id="sbDm">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.2h15v10.4H9.4l-4.9 3.3V6.2Z"/><path d="M8.6 11.4h6.8"/></svg>
@@ -1525,6 +1528,7 @@ body.no-motion{scroll-behavior:auto;}
       <button data-page="album" id="sbAlbum">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="17" height="13" rx="3"/><path d="M4 7l2-3h12l2 3"/><circle cx="12" cy="12.5" r="3.2"/></svg>
         班级相册
+        <span class="sb-dot" id="albumDot" style="display:none">0</span>
       </button>
       <button data-page="my" id="sbMy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"/><path d="M5.2 19.6c0-3.5 3-5.7 6.8-5.7s6.8 2.2 6.8 5.7"/></svg>
@@ -2987,7 +2991,7 @@ async function enterApp () {
   $('guestBar').classList.toggle('on', isGuest);
   await loadAll();
   renderAll();
-  if (!isGuest) { msgStartPoll(); showActBar(); }
+  if (!isGuest) { msgStartPoll(); badgeStartPoll(); showActBar(); }
 }
 
 function enterGuest () {
@@ -3001,7 +3005,7 @@ function enterGuest () {
 
 async function logout () {
   try { await cloud.auth.signOut(); } catch (e) {}
-  msgStopPoll(); dmStopPoll();
+  msgStopPoll(); dmStopPoll(); badgeReset();
   $('actBar').classList.remove('on');
   ACT.rows = []; DM.threads = [];
   NOTE.list = []; NOTE.loaded = false; NOTE.err = ''; NOTE.cat = 'all'; NOTE.file = null;
@@ -5293,6 +5297,127 @@ const ACT = { rows: [] };
 function dmUnreadTotal () {
   return DM.threads.reduce((s, t) => s + Number(t.unread || 0), 0);
 }
+/* ---------- 待办 / 日历 / 信息栏 / 相册的新内容红点 ----------
+   这四个模块没有"已读表"，改用「上次看过的时间」来算：比它晚冒出来的算新的。
+   时间记在这台设备的 localStorage 里，换设备会重新算一次，班级场景够用。 */
+const SEEN_KEY = 'classhub.seen';
+const SEEN_MODS = ['todo', 'cal', 'lib', 'album'];
+const SEEN = (function () {
+  let o = {};
+  try { o = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {}; } catch (e) { o = {}; }
+  const now = Date.now();
+  /* 头一回打开：把现有内容都当看过，免得新同学一进来就是一排 99+ */
+  SEEN_MODS.forEach(k => { if (!(Number(o[k]) > 0)) o[k] = now; });
+  return o;
+})();
+const BADGE = { todo: 0, cal: 0, lib: 0, album: 0, timer: null, busy: false };
+const DOT_ID = { todo: 'todoDot', cal: 'calDot', lib: 'libDot', album: 'albumDot' };
+
+function seenSave () {
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify(SEEN)); } catch (e) {}
+}
+
+/* 进了这一页就当看过了 */
+function seenClear (mod) {
+  if (SEEN_MODS.indexOf(mod) < 0) return;
+  SEEN[mod] = Date.now();
+  seenSave();
+  BADGE[mod] = 0;
+  paintBadges();
+}
+
+function paintBadges () {
+  SEEN_MODS.forEach(k => {
+    const el = $(DOT_ID[k]);
+    if (!el) return;
+    const n = (isGuest || !profile) ? 0 : (BADGE[k] || 0);
+    if (!n) el.style.display = 'none';
+    else { el.style.display = ''; el.textContent = n > 99 ? '99+' : String(n); }
+  });
+  syncAppBadge();
+}
+
+function pageOn (name) {
+  const p = $('page-' + name);
+  return !!(p && p.classList.contains('on'));
+}
+
+async function badgeRefresh () {
+  if (isGuest || !profile || BADGE.busy) return;
+  BADGE.busy = true;
+  try {
+    await noticeSoftRefresh();
+    const iso = k => new Date(SEEN[k]).toISOString();
+    const { data } = await cloud.database.rpc('badge_counts', {
+      p_todo: iso('todo'), p_cal: iso('cal'), p_lib: iso('lib'), p_album: iso('album')
+    });
+    const row = data && data[0];
+    if (row) {
+      SEEN_MODS.forEach(k => {
+        /* 人正停在这一页，就别再点亮了，顺手把时间推到现在 */
+        if (pageOn(k)) { SEEN[k] = Date.now(); BADGE[k] = 0; }
+        else BADGE[k] = Number(row[k] || 0);
+      });
+      seenSave();
+      paintBadges();
+    }
+  } catch (e) { /* 网络抖动就下次再算 */ }
+  BADGE.busy = false;
+}
+
+function badgeStartPoll () {
+  if (BADGE.timer) clearInterval(BADGE.timer);
+  seenSave();
+  badgeRefresh();
+  BADGE.timer = setInterval(() => { if (!isGuest) badgeRefresh(); }, 60000);
+}
+
+function badgeReset () {
+  if (BADGE.timer) { clearInterval(BADGE.timer); BADGE.timer = null; }
+  SEEN_MODS.forEach(k => { BADGE[k] = 0; });
+  paintBadges();
+}
+
+/* 有人加了新待办，进来把列表拉新一遍，不然红点清了内容还是旧的 */
+async function todoSoftRefresh () {
+  if (isGuest) return;
+  try {
+    const [t, c] = await Promise.all([
+      cloud.database.from('todos').select('*').order('created_at', { ascending: true }),
+      cloud.database.from('todo_completions').select('*')
+    ]);
+    if (!t.error) { S.todos = t.data || []; renderTodos(); }
+    if (!c.error) S.comps = c.data || [];
+  } catch (e) {}
+}
+
+async function calSoftRefresh () {
+  if (isGuest) return;
+  try {
+    const r = await cloud.database.from('calendar_events').select('*');
+    if (r.error) return;
+    S.calev = {};
+    (r.data || []).forEach(row => { S.calev[row.ev_date] = row; });
+    renderCal();
+  } catch (e) {}
+}
+
+/* 通知红点是从 S.notices 算出来的，这份数据也得跟着刷新，否则新通知永远不亮 */
+async function noticeSoftRefresh () {
+  if (isGuest) return;
+  try {
+    const [n, r] = await Promise.all([
+      cloud.database.from('notices').select('*')
+        .order('pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(100),
+      cloud.database.from('notice_reads').select('*')
+    ]);
+    if (!n.error) S.notices = n.data || [];
+    if (!r.error) S.reads = r.data || [];
+  } catch (e) {}
+}
+
 function actUnreadTotal () {
   return ACT.rows.filter(r => !r.read).length;
 }
@@ -5325,7 +5450,9 @@ function renderDmBadge () {
 function syncAppBadge () {
   const me = !isGuest && !!profile;
   const nN = me ? S.notices.filter(n => !S.reads.some(r => r.notice_id === n.id && r.owner_id === myUid)).length : 0;
-  const total = me ? nN + dmUnreadTotal() + actUnreadTotal() : 0;
+  /* 待办 / 日历 / 信息栏 / 相册的新内容也算进总红点，标签页和桌面图标才跟得上 */
+  const newN = me ? (BADGE.todo + BADGE.cal + BADGE.lib + BADGE.album) : 0;
+  const total = me ? nN + dmUnreadTotal() + actUnreadTotal() + newN : 0;
 
   const dot = $('ntDot');
   if (dot) {
@@ -6799,10 +6926,9 @@ async function noteEnter () {
   const nb = $('noteNewBtn');
   if (nb) nb.style.display = isGuest ? 'none' : '';
   renderNotes();
-  if (!NOTE.loaded) {
-    await loadNotes();
-    renderNotes();
-  }
+  /* 每次都补拉一次：别人刚发的资料，点进来就得看得见 */
+  await loadNotes();
+  renderNotes();
 }
 
 /* 上传失败的原因五花八门，翻译成人话，不然只看 "Failed to fetch" 一头雾水 */
@@ -6988,11 +7114,15 @@ async function noteOpenAtt (id) {
 function setActiveTab (name, opts) {
   if (name !== 'dm') dmStopPoll();
   if (name !== 'park') parkStop();
+  /* 走进待办 / 日历 / 信息栏 / 相册就当看过了，红点立刻清掉 */
+  seenClear(name);
   document.querySelectorAll('#sbNav button[data-page]').forEach(b => b.classList.toggle('on', b.dataset.page === name));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
   $('page-' + name).classList.add('on');
   if (name === 'roster') loadRoster();
-  if (name === 'cal') { calFocusCurrent(); return; }
+  /* 这两页的数据是登录时拉的快照，进来先补拉一次，不然红点清了内容还是旧的 */
+  if (name === 'todo') todoSoftRefresh();
+  if (name === 'cal') { calSoftRefresh(); calFocusCurrent(); return; }
   if (name === 'mates') { renderMates(); }
   if (name === 'park') parkEnter();
   if (name === 'lib') { noteEnter(); }
