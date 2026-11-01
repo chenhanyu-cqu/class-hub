@@ -77,6 +77,9 @@ body.signed-in .sidebar{display:flex;}
 .sb-brand .sb-title{display:none;}
 
 .sb-nav{display:flex;flex-direction:column;gap:3px;}
+/* 项数多起来时窄栏也能滚，底部那块不会被挤出去 */
+.sb-nav{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain;}
+.sb-nav::-webkit-scrollbar{display:none;}
 .sb-nav button{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   border:0;background:none;font:inherit;font-size:10px;line-height:1.15;
@@ -1408,6 +1411,74 @@ body.signed-in .sidebar{display:flex;}
   margin:16px 4px 0;text-align:center;font-size:11px;color:#b3bbc6;line-height:1.85;
 }
 
+/* ---------- 意见反馈箱：只存内容，不记名字 ---------- */
+.fb-intro{
+  display:flex;gap:11px;align-items:flex-start;margin:2px 0 14px;
+  background:linear-gradient(135deg,#eef4ff,#f7faff);
+  border:1px solid #dbe7ff;border-radius:14px;padding:12px 13px;
+}
+.fb-intro .fb-lock{
+  flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;
+  background:#fff;border:1px solid #dbe7ff;font-size:15px;
+}
+.fb-intro b{display:block;font-size:13.5px;color:#1f4fae;letter-spacing:.2px;}
+.fb-intro span{display:block;margin-top:3px;font-size:12px;line-height:1.65;color:#5a6c86;}
+
+.fb-kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px;}
+.fb-kinds button{
+  border:1px solid var(--line);background:var(--card);border-radius:11px;
+  padding:9px 2px;font:inherit;font-size:12px;color:var(--text-2);cursor:pointer;
+  box-shadow:var(--shadow);transition:.14s;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.fb-kinds button:active{transform:scale(.97);}
+.fb-kinds button.on{border-color:#bcd1fa;background:var(--brand-soft);color:var(--brand);font-weight:600;}
+
+.fb-box{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);padding:12px 12px 10px;
+}
+.fb-box textarea{
+  width:100%;border:0;outline:0;resize:vertical;min-height:104px;background:none;
+  font:inherit;font-size:14px;line-height:1.7;color:var(--text);
+}
+.fb-box textarea::placeholder{color:#b3bac6;}
+.fb-foot{display:flex;align-items:center;gap:10px;margin-top:8px;border-top:1px solid #f3f5f9;padding-top:9px;}
+.fb-cnt{font-size:11.5px;color:var(--text-3);}
+.fb-foot button{
+  margin-left:auto;border:0;border-radius:10px;background:var(--brand);color:#fff;
+  font:inherit;font-size:13.5px;font-weight:500;padding:9px 20px;cursor:pointer;transition:.14s;
+}
+.fb-foot button:disabled{opacity:.6;cursor:default;}
+.fb-foot button:active{transform:scale(.98);}
+
+.fb-done{
+  display:flex;flex-direction:column;gap:3px;margin:12px 0 0;padding:12px 14px;
+  background:#f0fbf5;border:1px solid #cfeee0;border-radius:13px;
+}
+.fb-done b{font-size:13.5px;color:#0f7a56;}
+.fb-done span{font-size:12px;color:#4d7f6c;line-height:1.6;}
+
+.fb-list{display:flex;flex-direction:column;gap:9px;}
+.fb-item{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:11px 13px;
+}
+.fb-item.done{opacity:.6;}
+.fb-item .fb-top{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.fb-item .fb-tag{font-size:11px;padding:1.5px 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand);}
+.fb-item .fb-tag.ask{background:#fff5e8;color:#9a6413;}
+.fb-item .fb-tag.bug{background:#fdeeee;color:#b3463a;}
+.fb-item .fb-time{margin-left:auto;font-size:11px;color:var(--text-3);}
+.fb-item p{margin:0;font-size:13.5px;line-height:1.72;white-space:pre-wrap;word-break:break-word;}
+.fb-item .fb-acts{display:flex;gap:8px;align-items:center;margin-top:9px;border-top:1px solid #f4f6fa;padding-top:8px;}
+.fb-item .fb-acts button{
+  border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 11px;
+  font:inherit;font-size:12px;color:var(--text-2);cursor:pointer;transition:.14s;
+}
+.fb-item .fb-acts button:hover{background:#f8faff;}
+.fb-item .fb-acts .fb-del{color:var(--danger);border-color:#f2d4d4;margin-left:auto;}
+
 /* 减少动效 */
 body.no-motion *,
 body.no-motion *::before,
@@ -1533,6 +1604,11 @@ body.no-motion{scroll-behavior:auto;}
       <button data-page="my" id="sbMy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3.6"/><path d="M5.2 19.6c0-3.5 3-5.7 6.8-5.7s6.8 2.2 6.8 5.7"/></svg>
         我的
+      </button>
+      <button data-page="feedback" id="sbFeedback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6a5.6 5.6 0 0 0-3.2 10.2c.5.4.8.9.9 1.5l.12.7h4.36l.12-.7c.1-.6.4-1.1.9-1.5A5.6 5.6 0 0 0 12 3.6Z"/><path d="M9.9 18.9h4.2M10.6 21.2h2.8"/></svg>
+        意见反馈
+        <span class="sb-dot" id="fbDot" style="display:none">0</span>
       </button>
     </nav>
     <div class="sb-foot">
@@ -2072,6 +2148,49 @@ body.no-motion{scroll-behavior:auto;}
           班级小站 v1.0 · 26机智11班<br>
           数据存在云端，换台设备打开看到的都是同一份。
         </p>
+      </section>
+
+      <!-- ============ 意见反馈箱：完全匿名，不记名字 ============ -->
+      <section class="page" id="page-feedback">
+        <h2 class="sec-title"><span>意见反馈箱</span></h2>
+
+        <div class="fb-intro">
+          <div class="fb-lock">🔒</div>
+          <div>
+            <b>完全匿名，不会留下名字</b>
+            <span>投进来的只有这段文字本身——不记名字、学号、账号，连团支书也不知道是谁写的。有什么想法、哪里没看懂、哪里用不了，都可以直接说。</span>
+          </div>
+        </div>
+
+        <div class="fb-kinds" id="fbKinds">
+          <button type="button" data-k="suggest" class="on">💡 提个建议</button>
+          <button type="button" data-k="ask">❓ 有点疑惑</button>
+          <button type="button" data-k="bug">🐞 用不了</button>
+        </div>
+
+        <div class="fb-box">
+          <textarea id="fbInput" rows="5" maxlength="500"
+                    placeholder="比如：希望班宠能换表情包；日历能不能提前一天提醒；相册传照片老是转圈……"></textarea>
+          <div class="fb-foot">
+            <span class="fb-cnt" id="fbCount">0 / 500</span>
+            <button id="fbSend" type="button">匿名投递</button>
+          </div>
+        </div>
+        <p class="hint-sm" style="margin:8px 5px 0">
+          投出去就改不了、也查不到是谁投的。想补充就再投一条，不用署名。
+        </p>
+
+        <div class="fb-done" id="fbDone" style="display:none">
+          <b>已经投进箱子了 ✓</b>
+          <span id="fbDoneTxt">谢谢你，团支书会定期开箱看。</span>
+        </div>
+
+        <!-- 只有团支书看得到：收到的反馈（同样没有名字） -->
+        <div id="fbAdmin" style="display:none">
+          <h2 class="sec-title"><span>收到的反馈</span><span class="count" id="fbAdminCnt"></span></h2>
+          <div class="fb-list" id="fbList"></div>
+          <p class="hint-sm" id="fbListEmpty" style="display:none;margin:8px 5px">箱子里还是空的。</p>
+        </div>
       </section>
 
     </main>
@@ -5372,10 +5491,160 @@ function badgeStartPoll () {
   BADGE.timer = setInterval(() => { if (!isGuest) badgeRefresh(); }, 60000);
 }
 
+/* ---------- 意见反馈箱：只存内容，不记名字 ----------
+   服务端 feedback 表只有 body / kind / 时间三个字段，没有 owner 列，
+   所以"匿名"是真的匿名：连团支书也查不出是谁投的。 */
+const FB = { kind: 'suggest', items: [], busy: false, dotBusy: false, dotAt: 0 };
+const FB_KINDS = { suggest: '建议', ask: '疑惑', bug: '用不了' };
+
+function fbMap (r) {
+  return { id: Number(r.id), body: r.body || '', kind: r.kind || 'suggest', at: r.created_at, done: !!r.done };
+}
+
+function fbCounter () {
+  const n = ($('fbInput').value || '').length;
+  $('fbCount').textContent = n + ' / 500';
+}
+
+function fbPaintList () {
+  const n = FB.items.length;
+  const pending = FB.items.filter(x => !x.done).length;
+  $('fbListEmpty').style.display = n ? 'none' : '';
+  $('fbAdminCnt').textContent = n ? ('待处理 ' + pending + ' / 共 ' + n) : '';
+  $('fbList').innerHTML = FB.items.map(x =>
+    '<div class="fb-item' + (x.done ? ' done' : '') + '" data-id="' + x.id + '">' +
+      '<div class="fb-top"><span class="fb-tag ' + esc(x.kind) + '">' + (FB_KINDS[x.kind] || '建议') + '</span>' +
+      '<span class="fb-time">' + esc(timeAgo(x.at)) + '</span></div>' +
+      '<p>' + esc(x.body) + '</p>' +
+      '<div class="fb-acts">' +
+        '<button type="button" class="fb-mark">' + (x.done ? '放回待处理' : '标记已处理') + '</button>' +
+        '<button type="button" class="fb-del">删除</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function fbPaintDot () {
+  const dot = $('fbDot');
+  if (!dot) return;
+  const n = FB.items.filter(x => !x.done).length;
+  if (!n) { dot.style.display = 'none'; return; }
+  dot.style.display = '';
+  dot.textContent = n > 99 ? '99+' : String(n);
+}
+
+/* 只有团支书能读到列表，服务端 list_feedback 里又判了一次权限 */
+async function fbLoad () {
+  const admin = isRosterAdmin();
+  $('fbAdmin').style.display = admin ? '' : 'none';
+  if (!admin) { FB.items = []; $('fbDot').style.display = 'none'; return; }
+  try {
+    const { data, error } = await cloud.database.rpc('list_feedback', { p_limit: 200 });
+    if (error) throw error;
+    FB.items = (data || []).map(fbMap);
+    FB.dotAt = Date.now();
+  } catch (e) { /* 网抖就留着上一次的结果 */ }
+  fbPaintList();
+  fbPaintDot();
+}
+
+/* 页头每渲染一次都问一遍太浪费，一分钟最多拉一次 */
+function fbBadgeThrottled () {
+  if (FB.dotBusy || Date.now() - FB.dotAt < 60000) return;
+  FB.dotBusy = true;
+  Promise.resolve(fbLoad()).then(() => { FB.dotBusy = false; }, () => { FB.dotBusy = false; });
+}
+
+async function fbSend () {
+  if (FB.busy) return;
+  const box = $('fbInput');
+  const body = (box.value || '').trim();
+  if (body.length < 5) {
+    toast('再多写几个字吧，至少 5 个字');
+    try { box.focus(); } catch (e) {}
+    return;
+  }
+
+  FB.busy = true;
+  const btn = $('fbSend');
+  btn.disabled = true; btn.textContent = '投递中…';
+
+  let row = null, error = null;
+  try {
+    const res = await cloud.database.rpc('submit_feedback', { p_body: body, p_kind: FB.kind });
+    row = res.data && res.data[0];
+    error = res.error;
+  } catch (err) { error = err; }
+
+  FB.busy = false;
+  btn.disabled = false; btn.textContent = '匿名投递';
+
+  if (error || (row && row.ok === false)) {
+    toast((row && row.msg) || (error && error.message) || '没投出去，等会儿再试');
+    return;
+  }
+
+  box.value = '';
+  fbCounter();
+  $('fbDone').style.display = '';
+  $('fbDoneTxt').textContent = '谢谢你，这条已经放进箱子了。团支书只会看到这段文字，不会知道是谁写的。';
+  toast('投好啦，谢谢你的反馈');
+  if (isRosterAdmin()) { FB.dotAt = 0; fbLoad(); }
+}
+
+async function fbMark (id, done) {
+  let row = null, error = null;
+  try {
+    const res = await cloud.database.rpc('set_feedback_done', { p_id: id, p_done: done });
+    row = res.data && res.data[0]; error = res.error;
+  } catch (e) { error = e; }
+  if (error || (row && row.ok === false)) return toast((row && row.msg) || '没改成，等会儿再试');
+  FB.dotAt = 0;
+  await fbLoad();
+}
+
+async function fbDel (id) {
+  if (!confirm('删掉这条反馈？删了就找不回来了。')) return;
+  let row = null, error = null;
+  try {
+    const res = await cloud.database.rpc('del_feedback', { p_id: id });
+    row = res.data && res.data[0]; error = res.error;
+  } catch (e) { error = e; }
+  if (error || (row && row.ok === false)) return toast((row && row.msg) || '删不掉，等会儿再试');
+  FB.items = FB.items.filter(x => x.id !== id);
+  fbPaintList();
+  fbPaintDot();
+  toast('已删除');
+}
+
+$('fbInput').addEventListener('input', fbCounter);
+$('fbInput').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') fbSend();
+});
+$('fbKinds').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]');
+  if (!b) return;
+  FB.kind = b.dataset.k;
+  document.querySelectorAll('#fbKinds button').forEach(x => x.classList.toggle('on', x === b));
+});
+$('fbSend').addEventListener('click', fbSend);
+$('fbList').addEventListener('click', e => {
+  const item = e.target.closest('.fb-item');
+  if (!item) return;
+  const id = Number(item.dataset.id);
+  const row = FB.items.find(x => x.id === id);
+  if (!row) return;
+  if (e.target.closest('.fb-del')) { fbDel(id); return; }
+  if (e.target.closest('.fb-mark')) fbMark(id, !row.done);
+});
+fbCounter();
+
 function badgeReset () {
   if (BADGE.timer) { clearInterval(BADGE.timer); BADGE.timer = null; }
   SEEN_MODS.forEach(k => { BADGE[k] = 0; });
   paintBadges();
+  FB.items = []; FB.dotAt = 0;
+  const fd = $('fbDot'); if (fd) fd.style.display = 'none';
 }
 
 /* 有人加了新待办，进来把列表拉新一遍，不然红点清了内容还是旧的 */
@@ -6365,6 +6634,8 @@ function renderHeader () {
   $('myRoster').style.display = canRoster ? '' : 'none';
   $('myRosterTitle').style.display = canRoster ? '' : 'none';
   $('newNoticeBtn').style.display = canPublishNotice() ? '' : 'none';
+  /* 团支书：顺手把反馈箱里没处理的条数标在导航上 */
+  if (canRoster) fbBadgeThrottled();
   syncAppBadge();
 }
 
@@ -7127,6 +7398,7 @@ function setActiveTab (name, opts) {
   if (name === 'park') parkEnter();
   if (name === 'lib') { noteEnter(); }
   if (name === 'album') { albEnter(); }
+  if (name === 'feedback') { fbLoad(); }
   if (name === 'dm') {
     if (isGuest) {
       $('msgTabs').style.display = 'none';
