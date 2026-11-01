@@ -3,9 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#2b6cf6">
+<meta name="theme-color" content="#2f6feb">
 <title>26机智11班 · 班级小站</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏫</text></svg>">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="班级小站">
 <style>
   html,body{margin:0;padding:0;height:100%;background:#eef2f9;overflow:hidden;
     -webkit-tap-highlight-color:transparent;}
@@ -17,6 +23,19 @@
     z-index:-1;}
   noscript{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;
     font:14px/1.8 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#5b6675;}
+
+  /* iOS「添加到主屏幕」引导条 */
+  .install-tip{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));
+    z-index:9;display:flex;align-items:center;gap:10px;
+    background:#1f2430;color:#fff;border-radius:14px;padding:11px 12px;
+    font:13px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    box-shadow:0 8px 24px rgba(10,16,32,.35);}
+  .install-tip .ic{font-size:20px;flex:0 0 auto;}
+  .install-tip p{margin:0;flex:1;}
+  .install-tip b{color:#ffd76e;}
+  .install-tip button{flex:0 0 auto;border:0;background:rgba(255,255,255,.16);color:#fff;
+    border-radius:8px;padding:4px 10px;font:inherit;cursor:pointer;}
+  .install-tip[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -29,5 +48,56 @@
     loading="eager"></iframe>
 </div>
 <noscript>这个页面需要开启 JavaScript 才能显示班级小站。</noscript>
+
+<div class="install-tip" id="installTip" hidden>
+  <span class="ic">📲</span>
+  <p>想像 App 一样用？点 Safari 底部的<b>分享</b>按钮，选<b>添加到主屏幕</b>，桌面就有图标啦。</p>
+  <button type="button" id="installClose">知道了</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var APP_ORIGIN = 'https://class-hub-24937.app.workbuddy.host';
+
+  /* ---- 桌面图标角标：小站把未读总数 postMessage 过来，这里负责设/清 ---- */
+  window.addEventListener('message', function (e) {
+    if (e.origin !== APP_ORIGIN) return;
+    var d = e.data || {};
+    if (d.type !== 'class-hub:badge') return;
+    var n = Math.max(0, Number(d.count) || 0);
+    try {
+      if (navigator.setAppBadge) {
+        if (n > 0) navigator.setAppBadge(n);
+        else navigator.clearAppBadge();
+      }
+    } catch (err) { /* 浏览器不支持就算了，站内红点还在 */ }
+  });
+
+  /* ---- Service Worker：让「添加到主屏幕」变成可安装的 PWA ---- */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+  }
+
+  /* ---- iOS 添加到主屏幕引导：只对没装过的 Safari 用户提示一次 ---- */
+  var tip = document.getElementById('installTip');
+  if (tip) {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var standalone = window.navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+    var dismissed = false;
+    try { dismissed = localStorage.getItem('class-hub-install-tip') === 'off'; } catch (e) {}
+    if (isIOS && !standalone && !dismissed) tip.hidden = false;
+    document.getElementById('installClose').addEventListener('click', function () {
+      tip.hidden = true;
+      try { localStorage.setItem('class-hub-install-tip', 'off'); } catch (e) {}
+    });
+  }
+})();
+</script>
 </body>
 </html>
