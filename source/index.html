@@ -5606,7 +5606,8 @@ async function openDm (name, opts) {
   $('msgTabs').style.display = '';
   document.querySelectorAll('#msgTabs button').forEach(b => b.classList.toggle('on', b.dataset.mt === 'chat'));
   $('dmBody').innerHTML = '<div class="dm-sys">正在加载…</div>';
-  if (!$('page-dm').classList.contains('on')) setActiveTab('dm');
+  /* keepChat：页面切换时别再去自动打开"最近那个"，这里已经指定好是谁了 */
+  if (!$('page-dm').classList.contains('on')) setActiveTab('dm', { keepChat: true });
   await loadDmMsgs(name, false);
   dmStartPoll();
   /* 从「消息」页自动进来时别抢焦点，不然手机键盘会自己弹起来 */
@@ -6984,7 +6985,7 @@ async function noteOpenAtt (id) {
 
 /* ---------- 6. 交互绑定 ---------- */
 
-function setActiveTab (name) {
+function setActiveTab (name, opts) {
   if (name !== 'dm') dmStopPoll();
   if (name !== 'park') parkStop();
   document.querySelectorAll('#sbNav button[data-page]').forEach(b => b.classList.toggle('on', b.dataset.page === name));
@@ -7008,7 +7009,7 @@ function setActiveTab (name) {
       $('dmEmpty').innerHTML = '登录之后才能和同学私信、看回复提醒。';
     } else {
       $('msgTabs').style.display = '';
-      enterDm();
+      if (!(opts && opts.keepChat)) enterDm();
     }
   }
   if (name === 'my') renderMe();
