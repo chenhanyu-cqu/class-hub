@@ -519,6 +519,15 @@ body.signed-in .sidebar{display:flex;}
   background:#dde3ec;min-width:80px;min-height:60px;
 }
 .dm-imgcap{font-size:12.5px;line-height:1.5;padding:4px 5px 1px;word-break:break-word;white-space:pre-wrap;}
+/* 视频消息：手机上自带播放条就够了，别做自定义控件 */
+.dm-msg.vidmsg video{
+  display:block;width:min(240px,64vw);max-height:300px;border-radius:10px;background:#0b0f16;
+}
+.dm-msg.vidmsg .dm-vidload{
+  display:flex;align-items:center;justify-content:center;
+  width:min(240px,64vw);height:130px;border-radius:10px;background:#0b0f16;
+  color:#cfd6e2;font-size:12px;
+}
 .dm-msg.imgmsg.me .dm-imgcap{color:#fff;}
 .dm-msg.imgmsg.them .dm-imgcap{color:var(--text);}
 /* 我发的每条消息下方的已读/未读小字：未读用品牌色，已读退成灰色 */
@@ -1469,6 +1478,7 @@ body.no-motion{scroll-behavior:auto;}
       <button data-page="home" class="on">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5a5 5 0 0 0-5 5V13l-1.6 2.6h13.2L17 13V9.5a5 5 0 0 0-5-5Z"/><path d="M10.4 18.6a1.7 1.7 0 0 0 3.2 0"/></svg>
         通知
+        <span class="sb-dot" id="ntDot" style="display:none">0</span>
       </button>
       <button data-page="todo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.3 4.6-4.8"/></svg>
@@ -1904,7 +1914,7 @@ body.no-motion{scroll-behavior:auto;}
           </div>
           <div class="dm-body" id="dmBody"></div>
           <div class="dm-input">
-            <button id="dmImg" type="button" title="发图片">
+            <button id="dmImg" type="button" title="发图片或视频">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="5" width="16.8" height="14" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="M4.6 16.6 9.3 12l3.4 3.3 2.8-2.6 3.9 3.7"/></svg>
             </button>
             <textarea id="dmInput" rows="1" maxlength="500" placeholder="说点什么…"></textarea>
@@ -1913,7 +1923,7 @@ body.no-motion{scroll-behavior:auto;}
           <div class="dm-tail">
             <button id="dmBack2" type="button">‹ 返回全部私信</button>
           </div>
-          <input type="file" id="dmFile" accept="image/*" style="display:none">
+          <input type="file" id="dmFile" accept="image/*,video/*" style="display:none">
         </div>
 
         <!-- 互动：谁回复了我的树洞 / 评论 · 谁逗了我的班宠 -->
@@ -5253,7 +5263,7 @@ $('albGrid').addEventListener('click', e => {
    函数里用 auth.uid() 卡死「只给我看我自己参与的那部分」。
    谁和谁聊、聊了什么，第三个人（包括团支书）都看不到。 */
 
-const DM = { threads: [], msgs: [], peer: '', timer: null, tab: 'chat', urls: {}, imgBusy: {} };
+const DM = { threads: [], msgs: [], peer: '', timer: null, tab: 'chat', urls: {}, imgBusy: {}, stick: true };
 const ACT = { rows: [] };
 
 function dmUnreadTotal () {
@@ -5284,6 +5294,27 @@ function renderDmBadge () {
     if (acN) { c2.style.display = ''; c2.textContent = acN > 99 ? '99+' : String(acN); }
     else c2.style.display = 'none';
   }
+  syncAppBadge();
+}
+
+/* 未读数喂给两处：侧栏「通知」红点 + 桌面图标角标（外壳页负责真正去设角标） */
+function syncAppBadge () {
+  const me = !isGuest && !!profile;
+  const nN = me ? S.notices.filter(n => !S.reads.some(r => r.notice_id === n.id && r.owner_id === myUid)).length : 0;
+  const total = me ? nN + dmUnreadTotal() + actUnreadTotal() : 0;
+
+  const dot = $('ntDot');
+  if (dot) {
+    if (!nN) dot.style.display = 'none';
+    else { dot.style.display = ''; dot.textContent = nN > 99 ? '99+' : String(nN); }
+  }
+
+  /* 被 GitHub Pages 外壳嵌着时，把总数报给外层，由它设桌面图标上的红点 */
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'class-hub:badge', count: total }, '*');
+    }
+  } catch (e) { /* 单独打开时没有 parent，忽略 */ }
 }
 
 async function loadAct () {
@@ -5416,6 +5447,7 @@ function dmPeerInfo (name) {
 async function openDm (name) {
   if (isGuest) { toast('登录后才能私信'); return; }
   DM.peer = name;
+  DM.stick = true;              /* 刚进对话：先跟随最新一条 */
   const p = dmPeerInfo(name);
   $('dmPeerAva').innerHTML = avatarInner(p.avatar, name);
   $('dmPeerName').textContent = name;
@@ -5456,7 +5488,8 @@ async function loadDmMsgs (name, quiet) {
     id: r.id, body: r.body, mine: !!r.mine, created_at: r.created_at,
     recalled: !!r.recalled, canRecall: !!r.can_recall,
     isRead: !!r.is_read,
-    img: (r.msg_type === 'image' && r.image_path) ? r.image_path : ''
+    img: (r.msg_type === 'image' && r.image_path) ? r.image_path : '',
+    vid: (r.msg_type === 'video' && r.image_path) ? r.image_path : ''
   }));
   renderDmMsgs();
   if (!quiet || grew) dmScrollBottom();
@@ -5494,6 +5527,13 @@ function renderDmMsgs () {
         (DM.urls[m.img] ? 'src="' + DM.urls[m.img] + '"' : '') + '>' +
         (m.body ? '<div class="dm-imgcap">' + esc(m.body) + '</div>' : '') +
         '</div>';
+    } else if (m.vid) {
+      bubble = '<div class="' + cls.replace('dm-msg ', 'dm-msg vidmsg ') + '" data-mid="' + m.id + '">' +
+        (DM.urls[m.vid]
+          ? '<video data-dmvid="' + esc(m.vid) + '" src="' + DM.urls[m.vid] + '" controls playsinline webkit-playsinline preload="metadata"></video>'
+          : '<div class="dm-vidload" data-dmvid="' + esc(m.vid) + '">视频加载中…</div>') +
+        (m.body ? '<div class="dm-imgcap">' + esc(m.body) + '</div>' : '') +
+        '</div>';
     } else {
       bubble = '<div class="' + cls + '" data-mid="' + m.id + '">' + esc(m.body) + '</div>';
     }
@@ -5512,7 +5552,7 @@ function renderDmMsgs () {
   dmFillImgs();
 }
 
-/* 图片气泡的签名地址是临时的，渲染完把没 src 的补上 */
+/* 图片/视频气泡的签名地址是临时的，渲染完把没 src 的补上 */
 function dmFillImgs () {
   document.querySelectorAll('#dmBody img[data-dmimg]').forEach(el => {
     const path = el.dataset.dmimg;
@@ -5523,7 +5563,38 @@ function dmFillImgs () {
       if (url) {
         DM.urls[path] = url;
         el.src = url;
+        /* 图出来后页面会变高，还贴在底部就再滚一次 */
+        if (DM.stick) setTimeout(() => { try { window.scrollTo({ top: document.documentElement.scrollHeight }); } catch (e) {} }, 60);
       }
+    }).catch(() => {}).then(() => { delete DM.imgBusy[path]; });
+  });
+
+  document.querySelectorAll('#dmBody [data-dmvid]').forEach(el => {
+    const path = el.dataset.dmvid;
+    if (el.tagName === 'VIDEO' && el.src) return;
+    if (DM.imgBusy[path]) return;
+
+    const mount = url => {
+      const v = document.createElement('video');
+      v.src = url;
+      v.controls = true;
+      v.playsInline = true;
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+      v.preload = 'metadata';
+      v.dataset.dmvid = path;
+      if (el.tagName === 'VIDEO') el.src = url;
+      else el.replaceWith(v);
+      if (DM.stick) setTimeout(() => { try { window.scrollTo({ top: document.documentElement.scrollHeight }); } catch (e) {} }, 80);
+    };
+
+    if (DM.urls[path]) { mount(DM.urls[path]); return; }
+
+    DM.imgBusy[path] = true;
+    cloud.storage.createSignedUrl(path, 1800).then(r => {
+      const url = r && r.data && r.data.signedUrl;
+      if (url) { DM.urls[path] = url; mount(url); }
+      else if (el.classList && el.classList.contains('dm-vidload')) el.textContent = '视频加载失败，重进一次对话试试';
     }).catch(() => {}).then(() => { delete DM.imgBusy[path]; });
   });
 }
@@ -5572,11 +5643,31 @@ async function recallDmMsg (id) {
   loadDm().then(() => { if (!DM.peer) renderDmThreads(); });
 }
 
+/* 滚到最新一条。图片/视频是异步加载的，加载完页面会变高，
+   所以分几个时间点各滚一次，别让同学一进对话就回到最早的消息。 */
 function dmScrollBottom () {
-  setTimeout(() => {
-    try { window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' }); } catch (e) {}
-  }, 40);
+  const run = () => {
+    if (!DM.stick) return;
+    const body = $('dmBody');
+    const last = body && body.lastElementChild;
+    if (last && last.scrollIntoView) {
+      try { last.scrollIntoView({ block: 'end', behavior: 'auto' }); } catch (e) {}
+    }
+    try {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+      document.documentElement.scrollTop = document.documentElement.scrollHeight;
+      document.body.scrollTop = document.body.scrollHeight;
+    } catch (e) {}
+  };
+  [0, 60, 180, 420, 900, 1500].forEach(t => setTimeout(run, t));
 }
+
+/* 自己往上翻看旧消息时别硬拽回底部；一旦翻回底部附近就恢复"跟随最新" */
+window.addEventListener('scroll', () => {
+  if (!DM.peer) return;
+  const gap = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+  DM.stick = gap < 180;
+}, { passive: true });
 
 async function sendDm () {
   if (!DM.peer) return;
@@ -5637,24 +5728,45 @@ function dmShrinkImage (file) {
   });
 }
 
-async function sendDmImage (file) {
+/* 发图片 / 视频：图片先在本地压一压（手机照片动辄 5MB），视频原样传，太大的直接拦。
+   媒体文件都进同一个 image_path 列，靠 msg_type 区分，聊天记录里的顺序不受影响。 */
+const DM_VIDEO_MAX = 60 * 1024 * 1024;
+
+async function sendDmMedia (file) {
   const peer = DM.peer;
   if (!peer || !myUid) return;
+  const isVid = /^video\//.test(file.type);
+  if (!isVid && !/^image\//.test(file.type)) return toast('只能发图片或视频');
+
+  if (isVid && file.size > DM_VIDEO_MAX) {
+    return toast('这段视频有 ' + noteSize(file.size) + '，超过 60MB 传不上去，剪短一点再发');
+  }
+
   const btn = $('dmSend');
   btn.disabled = true; btn.textContent = '发送中';
-  noteUpShow('正在发图片，压一压更好传…', null);
+  noteUpShow(isVid ? '正在上传视频（' + noteSize(file.size) + '）…' : '正在发图片，压一压更好传…', null);
 
   let path = '';
   try {
-    const f = await dmShrinkImage(file);
-    noteUpShow('正在上传图片（' + noteSize(f.size) + '）…', null);
+    let f = file;
+    if (!isVid) {
+      f = await dmShrinkImage(file);
+      noteUpShow('正在上传图片（' + noteSize(f.size) + '）…', null);
+    }
+
+    let ext = '.jpg';
+    if (isVid) {
+      const m = (f.name || '').match(/\.[a-z0-9]{2,5}$/i);
+      ext = m ? m[0].toLowerCase() : '.mp4';
+    } else if (f.type === 'image/gif') {
+      ext = '.gif';
+    }
     const key = 'dm/' + Date.now().toString(36) + '-' +
-                Math.random().toString(36).slice(2, 8) +
-                (f.type === 'image/gif' ? '.gif' : '.jpg');
+                Math.random().toString(36).slice(2, 8) + ext;
     path = cloud.storage.sharedPath(myUid, key);
 
     const up = await cloud.storage.upload(path, f, {
-      contentType: f.type || 'image/jpeg'
+      contentType: f.type || (isVid ? 'video/mp4' : 'image/jpeg')
     });
     if (up && up.error) throw new Error(noteUpErr(up.error));
 
@@ -5662,7 +5774,9 @@ async function sendDmImage (file) {
     let row = null, error = null;
     try {
       const res = await cloud.database.rpc('send_dm', {
-        p_to_name: peer, p_body: '', p_msg_type: 'image', p_image_path: path
+        p_to_name: peer, p_body: '',
+        p_msg_type: isVid ? 'video' : 'image',
+        p_image_path: path
       });
       row = res.data && res.data[0]; error = res.error;
     } catch (err) { error = err; }
@@ -5671,13 +5785,14 @@ async function sendDmImage (file) {
     }
 
     noteUpHide();
+    DM.stick = true;                 /* 刚发出去，肯定要看到自己这条 */
     await loadDmMsgs(peer, true);
     loadDm().then(renderDmThreads);
   } catch (err) {
     noteUpHide();
-    /* 消息没登记上就把传了一半的图清掉 */
+    /* 消息没登记上就把传了一半的文件清掉 */
     if (path) { try { await cloud.storage.remove([path]); } catch (x) {} }
-    toast('图片没发出去：' + (err.message || '网络问题'));
+    toast((isVid ? '视频' : '图片') + '没发出去：' + (err.message || '网络问题'));
   } finally {
     btn.disabled = false; btn.textContent = '发送';
   }
@@ -5774,7 +5889,7 @@ window.addEventListener('pageshow', e => {
 window.addEventListener('focus', dmWakeup);
 $('dmSend').addEventListener('click', sendDm);
 
-/* 发图片：选完就发，配文之后想加再说 */
+/* 发图片 / 视频：选完就发，配文之后想加再说 */
 $('dmImg').addEventListener('click', () => {
   if (isGuest) return toast('登录后才能发私信');
   if (!DM.peer) return toast('先点进一个对话');
@@ -5783,7 +5898,7 @@ $('dmImg').addEventListener('click', () => {
 $('dmFile').addEventListener('change', e => {
   const f = (e.target.files || [])[0];
   e.target.value = '';
-  if (f) sendDmImage(f);
+  if (f) sendDmMedia(f);
 });
 
 /* 输入框：有实体键盘的设备（电脑）回车发送、Shift+回车换行；
@@ -5809,6 +5924,9 @@ $('dmBody').addEventListener('click', e => {
   /* 点小图 → 看大图，不触发撤回 */
   const img = e.target.closest('img[data-dmimg]');
   if (img) { openDmImg(img.dataset.dmimg); return; }
+
+  /* 点视频是想播放（原生控件在上头），别顺手把「撤回」勾出来 */
+  if (e.target.closest('video, .dm-msg.vidmsg, .dm-vidload')) return;
 
   const rec = e.target.closest('[data-rec]');
   if (rec) { recallDmMsg(Number(rec.dataset.rec)); return; }
@@ -5953,6 +6071,7 @@ function renderHeader () {
   const canRoster = isRosterAdmin();
   $('sbRoster').style.display = canRoster ? '' : 'none';
   $('newNoticeBtn').style.display = canPublishNotice() ? '' : 'none';
+  syncAppBadge();
 }
 
 const openNotices = new Set();
