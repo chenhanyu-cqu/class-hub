@@ -678,6 +678,13 @@ body.signed-in .sidebar{display:flex;}
 .cal-todos .ct-item.done{color:var(--text-3);}
 .cal-todos .ct-item.done span{text-decoration:line-through;}
 .cal-todos .ct-item.done i{background:#c8ced8;}
+/* 行程条目右边的删除小叉，只有班委看得到 */
+.cal-todos .ct-x{
+  flex:0 0 auto;margin-left:auto;border:0;background:none;cursor:pointer;
+  font-size:14px;line-height:1;color:var(--text-3);padding:2px 4px;border-radius:6px;
+  transition:.14s;
+}
+.cal-todos .ct-x:hover{color:#e0564f;background:#fdecea;}
 #calNote:focus{border-color:#bcd1fa;box-shadow:0 0 0 3px rgba(47,111,235,.1);}
 #calNote:disabled{background:#f6f7f9;color:var(--text);}
 .cal-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 2px 12px;font-size:11px;color:var(--text-3);}
@@ -2219,11 +2226,12 @@ body.no-motion{scroll-behavior:auto;}
   </div>
 </div>
 
-<!-- 班级日历弹窗：班委编辑某天的行程，其他人只读 -->
+<!-- 班级日历弹窗：班委编辑某天的行程，其他人只读；一天可以记多条 -->
 <div class="ns-mask" id="calMask" style="display:none">
   <div class="ns-card">
     <p class="ns-title" id="calTitle"></p>
     <p class="ns-sub" id="calSub"></p>
+    <div class="cal-todos" id="calEvs" style="display:none"></div>
     <div class="cal-colors" id="calColors" style="display:none">
       <button type="button" data-c="red"    style="--cc:#e0564f" title="红色"></button>
       <button type="button" data-c="orange" style="--cc:#e0913c" title="橙色"></button>
@@ -2231,13 +2239,12 @@ body.no-motion{scroll-behavior:auto;}
       <button type="button" data-c="blue"   style="--cc:#3f7ee8" title="蓝色"></button>
       <button type="button" data-c="purple" style="--cc:#8a63d2" title="紫色"></button>
     </div>
-    <textarea id="calNote" rows="3" maxlength="60" placeholder="这一天的班级行程，比如：下午 2 点班会"></textarea>
+    <textarea id="calNote" rows="3" maxlength="60" placeholder="再给这天加一条行程，比如：下午 2 点班会"></textarea>
     <div class="cal-todos" id="calTodos" style="display:none"></div>
     <p class="err" id="calErr" style="margin:6px 0 0"></p>
     <div class="ns-foot">
-      <button id="calDel" class="ns-ghost" type="button" style="display:none">删除</button>
       <button id="calCancel" class="ns-ghost" type="button">关闭</button>
-      <button id="calOk" type="button">保存</button>
+      <button id="calOk" type="button">加上这条</button>
     </div>
   </div>
 </div>
@@ -3184,7 +3191,9 @@ async function loadAll () {
   ((hn && hn.data) || []).forEach(row => { S.holeNames[row.hole_id] = row.nick; });
 
   S.calev = {};
-  ((ce && ce.data) || []).forEach(row => { S.calev[row.ev_date] = row; });
+  ((ce && ce.data) || []).forEach(row => {
+    (S.calev[row.ev_date] = S.calev[row.ev_date] || []).push(row);
+  });
 
   S.members = (mem && mem.data) || [];
 
@@ -3621,7 +3630,7 @@ function renderCal () {
   for (let i = 0; i < firstDow; i++) cells += '<span class="cal-pad"></span>';
   for (let d = 1; d <= days; d++) {
     const key = calKey(calYear, calMonth, d);
-    const ev = S.calev[key];
+    const evs = S.calev[key] || [];
     const tds = tdMap[key] || [];
 
     /* 待办截止排前面：要交的事最容易被忘掉 */
@@ -3629,10 +3638,10 @@ function renderCal () {
       const soft = CAL_TODO_SOFT;
       return { txt: o.t.content, cls: 'td', c: soft[1], b: soft[0] };
     });
-    if (ev && ev.note) {
+    evs.forEach(ev => {
       const soft = CAL_SOFT[ev.color] || CAL_SOFT.blue;
       chips.push({ txt: ev.note, cls: 'ev', c: soft[1], b: soft[0] });
-    }
+    });
 
     const shown = chips.slice(0, MAX_CHIP);
     const rest  = chips.length - shown.length;
@@ -3682,12 +3691,29 @@ function calFocusCurrent () {
 }
 
 function calOpen (key) {
-  const ev = S.calev[key];
+  const evs = S.calev[key] || [];
   calEdit = key;
   $('calErr').textContent = '';
 
   const p = key.split('-');
   $('calTitle').textContent = parseInt(p[1], 10) + ' 月 ' + parseInt(p[2], 10) + ' 日';
+
+  /* 这天已有的行程：一天可以记多条，逐条摆出来 */
+  const ebox = $('calEvs');
+  if (evs.length) {
+    ebox.style.display = '';
+    ebox.innerHTML = '<p class="ct-hd"><i style="background:#2a61c9"></i>这天的班级行程（' + evs.length + ' 条）</p>' +
+      evs.map(v => {
+        const soft = CAL_SOFT[v.color] || CAL_SOFT.blue;
+        const x = (!isGuest && isCommittee())
+          ? '<button type="button" class="ct-x" data-cid="' + v.id + '" title="删掉这条">✕</button>' : '';
+        return '<div class="ct-item"><i style="background:' + soft[1] + '"></i><span>' +
+          esc(v.note) + '</span>' + x + '</div>';
+      }).join('');
+  } else {
+    ebox.style.display = 'none';
+    ebox.innerHTML = '';
+  }
 
   /* 这天到期的待办也一起摆出来：行程是"要去的"，待办是"要交的" */
   const dueList = todoDueMap(false)[key] || [];
@@ -3703,22 +3729,22 @@ function calOpen (key) {
   }
 
   if (!isGuest && isCommittee()) {
-    calColor = ev ? ev.color : 'blue';
     $('calColors').style.display = '';
     $('calNote').disabled = false;
-    $('calNote').value = ev ? ev.note : '';
+    $('calNote').value = '';
     $('calOk').style.display = '';
-    $('calDel').style.display = ev ? '' : 'none';
-    $('calSub').textContent = ev ? '这天已有安排，可以直接改' : '给这天写一句班级行程';
+    $('calSub').textContent = evs.length
+      ? '这天已有 ' + evs.length + ' 条行程，下面可以再加一条'
+      : '给这天加一条班级行程，想加几条都行';
+    calColor = 'blue';
     document.querySelectorAll('#calColors button').forEach(b => b.classList.toggle('on', b.dataset.c === calColor));
   } else {
     $('calColors').style.display = 'none';
-    $('calNote').disabled = true;
+    $('calNote').style.display = 'none';
     $('calOk').style.display = 'none';
-    $('calDel').style.display = 'none';
-    $('calSub').textContent = ev ? '这天的班级行程' : '这天还没有安排，等班委来写';
-    $('calNote').value = ev ? ev.note : '';
+    $('calSub').textContent = evs.length ? '这天的班级行程都在上面' : '这天还没有安排，等班委来写';
   }
+  if (!isGuest && isCommittee()) $('calNote').style.display = '';
   $('calMask').style.display = '';
 }
 
@@ -3737,22 +3763,24 @@ async function calSave () {
     $('calErr').textContent = (row && row.msg) || (error && error.message) || '保存失败，稍后再试';
     return;
   }
-  S.calev[calEdit] = { ev_date: calEdit, color: calColor, note: note };
   toast('已记到日历上');
-  calClose(); renderCal();
+  /* 加完不关弹窗，把这天刷新一遍，方便接着加下一条 */
+  await calSoftRefresh();
+  calOpen(calEdit);
 }
 
-async function calRemove () {
-  if (!calEdit || isGuest) return;
-  const { data, error } = await cloud.database.rpc('del_calendar_event', { p_date: calEdit });
+/* 删掉某一条行程：按数据库里的 id 删，不动同天的其他条 */
+async function calDelOne (cid) {
+  if (!calEdit || isGuest || !cid) return;
+  const { data, error } = await cloud.database.rpc('del_calendar_event', { p_id: cid });
   const row = data && data[0];
   if (error || (row && row.ok === false)) {
     toast('删除失败：' + ((row && row.msg) || (error && error.message) || ''));
     return;
   }
-  delete S.calev[calEdit];
   toast('已删掉');
-  calClose(); renderCal();
+  await calSoftRefresh();
+  calOpen(calEdit);
 }
 
 $('calGrid').addEventListener('click', e => {
@@ -3854,7 +3882,11 @@ $('calGrid').addEventListener('touchend', e => {
   calStep(dx < 0 ? 1 : -1);
 }, { passive: true });
 $('calOk').addEventListener('click', calSave);
-$('calDel').addEventListener('click', calRemove);
+/* 行程条上的小叉：删掉那一条（弹层里列出来的都是数据库里的真实 id） */
+$('calEvs').addEventListener('click', e => {
+  const b = e.target.closest('.ct-x[data-cid]');
+  if (b) calDelOne(b.dataset.cid);
+});
 $('calCancel').addEventListener('click', calClose);
 $('calColors').addEventListener('click', e => {
   const b = e.target.closest('[data-c]');
@@ -5667,7 +5699,9 @@ async function calSoftRefresh () {
     const r = await cloud.database.from('calendar_events').select('*');
     if (r.error) return;
     S.calev = {};
-    (r.data || []).forEach(row => { S.calev[row.ev_date] = row; });
+    (r.data || []).forEach(row => {
+      (S.calev[row.ev_date] = S.calev[row.ev_date] || []).push(row);
+    });
     renderCal();
   } catch (e) {}
 }
