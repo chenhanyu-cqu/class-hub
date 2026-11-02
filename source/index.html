@@ -631,7 +631,7 @@ body.signed-in .sidebar{display:flex;}
 .cal-wk span{text-align:center;font-size:10px;color:var(--text-3);padding:1px 0 4px;}
 /* 格子不再只放个数字：拉高一点，里面直接写这天的安排 */
 .cal-day{
-  position:relative;min-height:60px;border-radius:8px;
+  position:relative;min-height:86px;border-radius:8px;
   display:flex;flex-direction:column;align-items:stretch;gap:2px;
   padding:3px 2px 4px;overflow:hidden;
   font-size:12px;color:var(--text-3);background:transparent;border:0;
@@ -645,12 +645,13 @@ body.signed-in .sidebar{display:flex;}
   padding-left:2px;letter-spacing:.2px;
 }
 .cal-day.today .dnum{color:var(--brand);font-weight:700;}
-/* 格子里的一条安排：浅底 + 同色左边条，字小但看得清 */
+/* 格子里的一条安排：浅底 + 同色左边条，字小但看得清；放不下折行，最多两行 */
 .cal-day .cev{
-  flex:0 0 auto;display:block;font-size:9px;line-height:1.35;
+  flex:0 0 auto;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;font-size:9px;line-height:1.35;
   padding:1px 2px 1px 3px;border-radius:3px;
   background:var(--b);color:var(--t);border-left:2px solid var(--c);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  white-space:normal;word-break:break-all;overflow-wrap:anywhere;
   font-weight:500;letter-spacing:-.1px;
 }
 /* 待办截止：左边条改虚线，和班级行程区分开 */
@@ -3615,7 +3616,7 @@ function renderCal () {
 
   const firstDow = (new Date(calYear, calMonth, 1).getDay() + 6) % 7;   // 周一=0
   const days = new Date(calYear, calMonth + 1, 0).getDate();
-  const MAX_CHIP = 2;                   // 一格里最多摊两条，再多折叠成 +N
+  const MAX_CHIP = 3;                   // 格子拉高后一格里最多摊三条，再多折叠成 +N
   let cells = '';
   for (let i = 0; i < firstDow; i++) cells += '<span class="cal-pad"></span>';
   for (let d = 1; d <= days; d++) {
