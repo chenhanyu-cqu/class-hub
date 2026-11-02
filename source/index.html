@@ -631,7 +631,7 @@ body.signed-in .sidebar{display:flex;}
 .cal-wk span{text-align:center;font-size:10px;color:var(--text-3);padding:1px 0 4px;}
 /* 格子不再只放个数字：拉高一点，里面直接写这天的安排 */
 .cal-day{
-  position:relative;min-height:86px;border-radius:8px;
+  position:relative;min-height:106px;border-radius:8px;
   display:flex;flex-direction:column;align-items:stretch;gap:2px;
   padding:3px 2px 4px;overflow:hidden;
   font-size:12px;color:var(--text-3);background:transparent;border:0;
@@ -2377,7 +2377,7 @@ body.no-motion{scroll-behavior:auto;}
 
 /* 版本号：每次发布前手动改一下这里的日期时间，用来判断同学看到的是不是最新版。
    页面右上角（登录后）/ 登录按钮下方（未登录）会显示这串数字。 */
-const BUILD = 'b2026-11-02 11:55';
+const BUILD = 'b2026-11-02 12:05';
 
 /* 把版本号写到页面上所有 data-ver 的位置 */
 function paintVer () {
