@@ -2377,17 +2377,18 @@ body.no-motion{scroll-behavior:auto;}
 
 /* 版本号：每次发布前手动改一下这里的日期时间，用来判断同学看到的是不是最新版。
    页面右上角（登录后）/ 登录按钮下方（未登录）会显示这串数字。 */
-const BUILD = 'b2026-10-31 17:35';
+const BUILD = 'b2026-11-02 11:55';
 
 /* 把版本号写到页面上所有 data-ver 的位置 */
 function paintVer () {
   document.querySelectorAll('[data-ver]').forEach(el => { el.textContent = '版本 ' + BUILD; });
 }
 
-/* 静默比对线上版本：如果线上比本地新，弹一条“有新版本”提示，点一下强制刷新。
-   这里加时间戳 + no-store，专门绕开浏览器缓存。 */
+/* 静默比对线上版本：如果线上比本地新，自动带时间戳强刷一次（绕开浏览器缓存）；
+   正在打字时只弹提示条不硬刷，免得把没发出去的字刷没了。提示条也留着当手动入口。 */
+let updReloading = false;
 async function checkNewBuild () {
-  if (location.protocol === 'file:') return;
+  if (location.protocol === 'file:' || updReloading) return;
   try {
     const u = new URL(location.href);
     u.searchParams.set('_p', String(Date.now()));
@@ -2398,11 +2399,17 @@ async function checkNewBuild () {
     if (!m || m[1] === BUILD) return;
     const bar = $('updBar');
     if (bar) bar.classList.add('on');
-    $('updGo').onclick = () => {
+    const go = () => {
+      if (updReloading) return;
+      updReloading = true;
       const g = new URL(location.href);
-      g.searchParams.set('v', m[1].replace(/[^\w-]/g, ''));
+      g.searchParams.set('v', Date.now());
       location.replace(g.toString());
     };
+    $('updGo').onclick = go;
+    const ae = document.activeElement;
+    const typing = ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName);
+    if (!typing && !document.hidden) setTimeout(go, 1200);
   } catch (e) { /* 网络不好就跳过，不影响使用 */ }
 }
 

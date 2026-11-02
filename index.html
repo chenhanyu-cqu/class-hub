@@ -41,6 +41,7 @@
 <body>
 <div class="frame">
   <iframe
+    id="appFrame"
     src="https://class-hub-24937.app.workbuddy.host/?sharecode=UTWN77ARPB"
     title="26机智11班 班级小站"
     allow="clipboard-write; fullscreen; camera; microphone"
@@ -62,6 +63,17 @@
   var APP_ORIGIN = 'https://class-hub-24937.app.workbuddy.host';
   var BASE_TITLE = document.title;
   var lastN = -1;
+
+  /* ---- 防缓存：给 iframe 的地址加一个每小时变一次的参数，
+     避免手机浏览器拿旧缓存里的班级小站页面（线上响应头没有 Cache-Control） ---- */
+  try {
+    var f = document.getElementById('appFrame');
+    if (f) {
+      var u = new URL(f.getAttribute('src'));
+      u.searchParams.set('v', String(Math.floor(Date.now() / 3600000)));
+      f.src = u.toString();
+    }
+  } catch (err) { /* 改不了就用原地址 */ }
 
   /* ---- 图标红点：桌面图标角标 + 标签页标题 + 标签页图标，三个一起上 ----
      光靠 setAppBadge 在电脑浏览器里是不生效的（它只对"装到桌面"的 PWA 有用），
