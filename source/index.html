@@ -985,6 +985,81 @@ body.signed-in .sidebar{display:flex;}
 .park-pet .pk-bub.px-r.on{transform:translate(-86%,0) scale(1);}
 .park-pet .pk-bub.px-r::after{left:86%;}
 
+/* ---------- 班级农场（班宠乐园页内的第二块，和班宠并存） ---------- */
+.park-tabs{display:flex;gap:8px;margin:10px 5px 0;}
+.park-tabs button{
+  flex:1;border:1px solid var(--line);background:#fff;border-radius:999px;
+  font:inherit;font-size:13.5px;color:var(--text-2);padding:9px 0;cursor:pointer;
+}
+.park-tabs button.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600;}
+#farmView{display:none;margin-top:12px;}
+#farmView.on{display:block;}
+.fm-res{display:flex;gap:6px;margin:0 0 10px;overflow-x:auto;padding:2px;-webkit-overflow-scrolling:touch;}
+.fm-res span{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12.5px;color:var(--text);white-space:nowrap;
+}
+.fm-res b{font-weight:600;}
+.fm-wrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);
+  box-shadow:var(--shadow);background:linear-gradient(180deg,#c9e8f0 0%,#a9d8e8 100%);}
+.fm-wrap svg{display:block;width:100%;height:auto;}
+.fm-night{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.5s;
+  background:linear-gradient(180deg,rgba(14,26,62,.38) 0%,rgba(8,18,48,.58) 100%);}
+.fm-wrap.is-night .fm-night{opacity:1;}
+.fm-wrap.is-night .fw-win{fill:#ffd76e !important;}
+/* 场景里的白色小标签 */
+.fm-tag{
+  position:absolute;transform:translate(-50%,-100%);display:inline-flex;align-items:center;gap:4px;
+  background:#fff;border:0;border-radius:10px;padding:3px 9px;font-size:11px;line-height:1.5;
+  font-family:inherit;color:var(--text);white-space:nowrap;box-shadow:0 2px 6px rgba(60,80,100,.2);cursor:default;
+}
+.fm-tag .tail{position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#fff;}
+.fm-tag.click{cursor:pointer;font-weight:600;}
+.fm-tag.click:active{transform:translate(-50%,-100%) scale(.93);}
+.fm-tag.ok{background:#3f9a68;color:#fff;}
+.fm-tag.ok .tail{border-top-color:#3f9a68;}
+.fm-tag.lock{color:var(--text-3);font-weight:400;}
+.fm-visit{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:8px;align-items:center;z-index:5;}
+.fm-visit span{flex:1;background:rgba(255,255,255,.94);border-radius:10px;padding:7px 10px;font-size:12.5px;}
+.fm-visit button{flex:0 0 auto;border:0;border-radius:9px;background:var(--brand);color:#fff;font:inherit;font-size:12.5px;padding:7px 12px;cursor:pointer;}
+/* 底部一排入口 */
+.fm-nav{display:flex;gap:3px;margin:10px 0 0;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:6px;box-shadow:var(--shadow);}
+.fm-nav button{flex:1;min-width:0;border:0;background:transparent;border-radius:10px;
+  font:inherit;font-size:12px;color:var(--text-2);padding:7px 0 6px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;}
+.fm-nav button i{font-style:normal;font-size:16px;line-height:1;}
+.fm-nav button.on{background:#eaf1fd;color:var(--brand);font-weight:600;}
+/* 弹层（底部抽屉） */
+.fm-mask{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center;background:rgba(30,40,60,.42);}
+.fm-mask.on{display:flex;}
+.fm-card{position:relative;width:100%;max-width:430px;max-height:78vh;overflow-y:auto;background:#fffdf6;
+  border-radius:18px 18px 0 0;padding:14px 16px 22px;}
+.fm-card h3{margin:0;font-size:16px;color:var(--text);}
+.fm-card .fm-sub{margin:3px 0 12px;font-size:12px;color:var(--text-3);line-height:1.6;}
+.fm-x{flex:0 0 auto;width:30px;height:30px;border:0;border-radius:50%;background:#f0ece0;
+  font-size:14px;color:var(--text-2);cursor:pointer;}
+.fm-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee3c8;border-radius:12px;background:#fff;margin-bottom:8px;}
+.fm-item .fm-ic{flex:0 0 auto;font-size:22px;}
+.fm-item .fm-inf{flex:1;min-width:0;}
+.fm-item .fm-inf b{display:block;font-size:13.5px;color:var(--text);}
+.fm-item .fm-inf em{font-style:normal;font-size:11.5px;color:var(--text-3);display:block;margin-top:2px;line-height:1.5;}
+.fm-btns{display:flex;flex-direction:column;gap:5px;align-items:stretch;}
+.fm-item button{flex:0 0 auto;border:0;border-radius:9px;background:var(--brand);color:#fff;font:inherit;font-size:12.5px;padding:8px 13px;cursor:pointer;white-space:nowrap;}
+.fm-item button:disabled{background:#c3cbd8;color:#fff;cursor:default;}
+.fm-item button.ghost{background:#fff;border:1px solid var(--line);color:var(--text-2);}
+.fm-big{display:block;text-align:center;font-size:44px;margin:14px 0 6px;}
+.fm-resTxt{display:block;text-align:center;font-size:14px;line-height:1.7;color:var(--text);margin:0 0 14px;}
+/* 班级群岛 */
+.fm-isles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;}
+.fm-isle{border:0;border-radius:14px;background:linear-gradient(180deg,#d8eef4 0%,#bfe3ef 55%,#c8e6a0 55%,#b7dc8e 100%);
+  padding:8px 8px 10px;text-align:center;font:inherit;cursor:pointer;box-shadow:var(--shadow);}
+.fm-isle:active{transform:scale(.97);}
+.fm-isle b{display:block;font-size:12.5px;margin-top:2px;color:var(--text);}
+.fm-isle em{font-style:normal;font-size:11px;color:var(--text-3);}
+.fm-isle svg{display:block;width:100%;height:auto;border-radius:10px;}
+
 /* 互动卡 */
 .pk-stage2{
   position:relative;border-radius:14px;padding:30px 12px 12px;text-align:center;
@@ -1874,13 +1949,18 @@ body.no-motion{scroll-behavior:auto;}
         <div class="mate-grid" id="mateGrid"></div>
       </section>
 
-      <!-- ============ 班宠乐园：大乐园 ============ -->
+      <!-- ============ 班宠乐园：大乐园 + 班级农场 ============ -->
       <section class="page" id="page-park">
         <h2 class="sec-title"><span>班宠乐园</span></h2>
 
+        <div class="park-tabs" id="parkTabs">
+          <button type="button" data-pt="pet" class="on">🐾 班宠草地</button>
+          <button type="button" data-pt="farm">🌾 班级农场</button>
+        </div>
+
         <!-- 大乐园：全班宠物散养在一起 -->
         <div id="parkPlaza">
-          <p class="hint-sm" style="margin:0 5px">
+          <p class="hint-sm" style="margin:12px 5px 0">
             全班的班宠都散养在这儿。它们会自己冒出一句悄悄话；点一只宠物，
             可以摸摸头、喂点零食、举高高。
           </p>
@@ -1896,7 +1976,47 @@ body.no-motion{scroll-behavior:auto;}
             名册还没有同学进站，等大家注册之后，班宠就会一只只出现在这片草地上。
           </p>
         </div>
+
+        <!-- 班级农场：一人一座小岛 -->
+        <div id="farmView">
+          <div class="fm-res" id="fmRes"></div>
+          <div class="fm-wrap" id="fmWrap">
+            <svg id="fmSvg" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet"></svg>
+            <div id="fmTags"></div>
+            <div class="fm-night"></div>
+            <div class="fm-visit" id="fmVisit" style="display:none">
+              <span id="fmVisitTxt"></span>
+              <button type="button" id="fmVisitBack">回自己农场</button>
+            </div>
+          </div>
+          <div id="fmIsles" style="display:none"></div>
+          <div class="fm-nav" id="fmNav">
+            <button type="button" data-fn="isles"><i>🏝️</i>群岛</button>
+            <button type="button" data-fn="plot" class="on"><i>🌱</i>菜地</button>
+            <button type="button" data-fn="tree"><i>🍎</i>果园</button>
+            <button type="button" data-fn="coop"><i>🐔</i>养殖</button>
+            <button type="button" data-fn="shop"><i>🏪</i>商店</button>
+            <button type="button" data-fn="home"><i>🏠</i>农舍</button>
+          </div>
+          <p class="hint-sm" style="margin:8px 5px 0">
+            天色跟真实时间走，晚上小屋会亮灯；作物也用真实时间慢慢长，浇水施肥能提速，回来看看就能收。
+          </p>
+        </div>
       </section>
+
+      <!-- 农场弹层 -->
+      <div class="fm-mask" id="fmMask">
+        <div class="fm-card">
+          <div style="display:flex;align-items:flex-start;gap:8px">
+            <div style="flex:1;min-width:0">
+              <h3 id="fmCardT"></h3>
+              <p class="fm-sub" id="fmCardS"></p>
+            </div>
+            <button type="button" class="fm-x" id="fmClose">✕</button>
+          </div>
+          <div id="fmCardBody"></div>
+        </div>
+      </div>
 
       <!-- ============ 班级相册：先建相册，进去之后才往里贴照片 ============ -->
       <section class="page" id="page-album">
@@ -2377,7 +2497,7 @@ body.no-motion{scroll-behavior:auto;}
 
 /* 版本号：每次发布前手动改一下这里的日期时间，用来判断同学看到的是不是最新版。
    页面右上角（登录后）/ 登录按钮下方（未登录）会显示这串数字。 */
-const BUILD = 'b2026-11-02 12:05';
+const BUILD = 'b2026-11-03 11:40';
 
 /* 把版本号写到页面上所有 data-ver 的位置 */
 function paintVer () {
@@ -5109,6 +5229,790 @@ $('pkOwnerBtn').addEventListener('click', () => {
   const nm = PARK.open;
   closePark();
   if (nm) openMate(nm);
+});
+
+/* ---------- 4.56b 班级农场 ----------
+   一人一座小岛：菜地种菜、果园摘果、鸡舍鸭湾收蛋、林地探险开宝箱，
+   收获当场换成金币，攒金币升农舍（茅草屋 → 木屋 → 砖房 → 花园洋房）。
+   天色跟手机的真实时间走，晚上小屋亮灯。
+   数据在 farm_state 表：全班都能看（群岛、串门），但只有自己能改自己那行。 */
+
+const FARM = { st:null, rows:{}, visit:'', timer:null, inited:false, busy:false, panel:'', isles:false };
+
+const FARM_CROPS = {
+  radish:  { n:'小萝卜', ic:'🥕', m:30,   buy:5,  sell:9   },
+  wheat:   { n:'小麦',   ic:'🌾', m:180,  buy:12, sell:24  },
+  tomato:  { n:'番茄',   ic:'🍅', m:480,  buy:26, sell:52  },
+  pumpkin: { n:'南瓜',   ic:'🎃', m:1440, buy:48, sell:105 }
+};
+const FARM_TREES = {
+  apple:  { n:'苹果树', ic:'🍎', buy:80,  h:24, yield:44 },
+  orange: { n:'橘子树', ic:'🍊', buy:140, h:36, yield:82 }
+};
+const FARM_BIRDS = {
+  hen:  { n:'母鸡', ic:'🐔', buy:60, h:12, get:14 },
+  duck: { n:'鸭子', ic:'🦆', buy:85, h:18, get:22 }
+};
+const FARM_HOUSES = ['茅草屋','木屋','砖房','花园洋房'];
+const FARM_HOUSE_COST = [0, 120, 280, 650];
+const FARM_PLOT_COST = [0, 0, 20, 35, 50, 70];   /* 开垦第 i 块地（前两块送） */
+const FARM_TREE_COST = [0, 40, 60, 80];          /* 开垦第 i 个果树坑 */
+const FARM_AV = {
+  f: [
+    { hat:'#e8c76e', top:'#7fae62', hair:'#5a3c28', nm:'麦穗小园丁' },
+    { hat:'#e89b9b', top:'#d88a9a', hair:'#3c2a1e', nm:'花园好朋友' },
+    { hat:'#8ab6d8', top:'#f2e6c8', hair:'#26262e', nm:'清晨学徒' },
+    { hat:'#c47f1c', top:'#6a9ad8', hair:'#7a4a1e', nm:'南瓜马甲' }
+  ],
+  b: [
+    { hat:'#d8b26e', top:'#6a9ad8', hair:'#3c2a1e', nm:'麦穗小园丁' },
+    { hat:'#7fae62', top:'#f2e6c8', hair:'#26262e', nm:'花园好朋友' },
+    { hat:'#e8a05a', top:'#5a8a4a', hair:'#5a3c28', nm:'清晨学徒' },
+    { hat:'#8a63d2', top:'#d8c8a8', hair:'#2a2a34', nm:'南瓜马甲' }
+  ]
+};
+
+function fmNorm (r) {
+  if (!r) return null;
+  const j = v => {
+    if (v == null) return null;
+    if (typeof v === 'object') return v;
+    try { return JSON.parse(v); } catch (e) { return null; }
+  };
+  const arr = v => { const x = j(v); return Array.isArray(x) ? x : []; };
+  const plots = arr(r.plots);  while (plots.length < 6) plots.push(null);
+  const trees = arr(r.trees);  while (trees.length < 4) trees.push(null);
+  r.coins = r.coins | 0; r.water = r.water | 0; r.vigor = r.vigor | 0; r.fert = r.fert | 0;
+  r.plots_open = r.plots_open | 0; r.trees_open = r.trees_open | 0; r.house_lv = r.house_lv | 0;
+  const av = j(r.avatar) || {};
+  r.avatar = { g: av.g === 'b' ? 'b' : 'f', s: Math.min(3, Math.max(0, av.s | 0)) };
+  r.plots = plots; r.trees = trees; r.animals = arr(r.animals);
+  return r;
+}
+
+function farmDummy () {
+  return fmNorm({ coins:0, water:12, vigor:10, fert:2, plots_open:2, trees_open:1,
+    house_lv:1, avatar:{ g:'f', s:0 }, plots:[], trees:[], animals:[], explore_at:null });
+}
+
+async function farmEnter () {
+  if (!$('farmView')) return;
+  if (FARM.inited) { farmPaint(); return; }
+  FARM.inited = true;
+  if (!isGuest) {
+    try {
+      const r = await cloud.database.from('farm_state').select('*');
+      ((r && r.data) || []).forEach(x => { FARM.rows[fmNorm(x).uid] = x; });
+      let st = FARM.rows[myUid];
+      if (!st) {
+        const ins = await cloud.database.from('farm_state').insert({ uid: myUid }).select();
+        if (ins.data && ins.data[0]) { st = fmNorm(ins.data[0]); FARM.rows[myUid] = st; }
+        else if (ins.error) toast('农场开荒失败：' + (ins.error.message || '稍后再试'));
+      }
+      if (st) { FARM.st = st; farmRegen(); }
+    } catch (e) { /* 网络不好下次再取 */ }
+  }
+  farmPaint();
+  if (!FARM.timer) FARM.timer = setInterval(farmTick, 20000);
+}
+
+/* 离线恢复：雨露每半小时回 1（上限 12），活力每两小时回 1（上限 10） */
+function farmRegen () {
+  const st = FARM.st;
+  if (!st) return;
+  const el = Date.now() - new Date(st.updated_at || Date.now()).getTime();
+  const w = Math.min(12, st.water + Math.floor(el / 1800000));
+  const v = Math.min(10, st.vigor + Math.floor(el / 7200000));
+  if (w !== st.water || v !== st.vigor) { st.water = w; st.vigor = v; farmSave(); }
+}
+
+function farmSave () {
+  const st = FARM.st;
+  if (!st || isGuest || !myUid) return;
+  st.updated_at = new Date().toISOString();
+  cloud.database.from('farm_state').update({
+    coins: st.coins, water: st.water, vigor: st.vigor, fert: st.fert,
+    plots_open: st.plots_open, trees_open: st.trees_open, house_lv: st.house_lv,
+    avatar: JSON.stringify(st.avatar), plots: JSON.stringify(st.plots),
+    trees: JSON.stringify(st.trees), animals: JSON.stringify(st.animals),
+    explore_at: st.explore_at || null, updated_at: st.updated_at
+  }).eq('uid', myUid);
+}
+
+function fmIsNight () { const h = new Date().getHours(); return h < 6 || h >= 18; }
+
+/* ---- 场景绘制：等距小岛 ---- */
+
+function fmPlotPos () {
+  const a = [];
+  for (let i = 0; i < 6; i++) a.push({ x: 190 + (i % 3) * 96, y: 392 + Math.floor(i / 3) * 64 });
+  return a;
+}
+function fmTreePos () { return [{ x: 622, y: 424 }, { x: 692, y: 452 }, { x: 560, y: 452 }, { x: 630, y: 486 }]; }
+
+function fmHouseSvg (lv, x, y, s) {
+  const H = [
+    { wall:'#cfa872', wall2:'#bd9258', roof:'#dbc57f', roof2:'#c6ab60' },
+    { wall:'#b0825a', wall2:'#9a6e48', roof:'#8a5a3a', roof2:'#744a2e' },
+    { wall:'#e2c4a2', wall2:'#d2ae88', roof:'#c05a4a', roof2:'#a84838' },
+    { wall:'#f4f6f8', wall2:'#e2e8ee', roof:'#7fa8d8', roof2:'#6a92c4' }
+  ][Math.min(3, Math.max(0, lv - 1))];
+  const w = 120 * s, h = 62 * s, rh = 46 * s;
+  return '<g transform="translate(' + x + ',' + y + ')">' +
+    '<ellipse cx="0" cy="' + (h + 7 * s) + '" rx="' + (w * .64) + '" ry="' + (10 * s) + '" fill="rgba(70,90,50,.16)"/>' +
+    '<rect x="' + (-w / 2) + '" y="0" width="' + w + '" height="' + h + '" fill="' + H.wall + '"/>' +
+    '<rect x="' + (-w / 2) + '" y="' + (h * .6) + '" width="' + w + '" height="' + (h * .4) + '" fill="' + H.wall2 + '"/>' +
+    '<path d="M ' + (-w / 2 - 10 * s) + ' 0 L 0 ' + (-rh) + ' L ' + (w / 2 + 10 * s) + ' 0 Z" fill="' + H.roof + '"/>' +
+    '<path d="M 0 ' + (-rh) + ' L ' + (w / 2 + 10 * s) + ' 0 L ' + (w / 2 - 4 * s) + ' 0 L 0 ' + (-rh + 10 * s) + ' Z" fill="' + H.roof2 + '"/>' +
+    '<rect class="fw-win" x="' + (-w * .32) + '" y="' + (h * .26) + '" width="' + (w * .24) + '" height="' + (h * .3) + '" rx="' + (3 * s) + '" fill="#5a4a3a"/>' +
+    '<rect class="fw-win" x="' + (w * .1) + '" y="' + (h * .26) + '" width="' + (w * .24) + '" height="' + (h * .3) + '" rx="' + (3 * s) + '" fill="#5a4a3a"/>' +
+    '<rect x="' + (-8 * s) + '" y="' + (h - 26 * s) + '" width="' + (16 * s) + '" height="' + (26 * s) + '" rx="' + (2 * s) + '" fill="' + H.roof2 + '"/>' +
+    '</g>';
+}
+
+function fmTreeSvg (x, y, s, prog, ready) {
+  if (prog == null) {  /* 空坑：一小圈土 */
+    return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (20 * s) + '" ry="' + (9 * s) + '" fill="#b09468"/>' +
+           '<ellipse cx="' + x + '" cy="' + (y - 2) + '" rx="' + (16 * s) + '" ry="' + (7 * s) + '" fill="#c9a97a"/>';
+  }
+  const k = .35 + .65 * Math.min(1, prog), r = 20 * s * k;
+  let b = '<rect x="' + (x - 2.5 * s) + '" y="' + (y - 14 * s) + '" width="' + (5 * s) + '" height="' + (14 * s) + '" rx="2" fill="#8a623c"/>' +
+    '<circle cx="' + x + '" cy="' + (y - 14 * s - r * .8) + '" r="' + r + '" fill="#5f9e4a"/>' +
+    '<circle cx="' + (x - r * .55) + '" cy="' + (y - 14 * s - r * .5) + '" r="' + (r * .62) + '" fill="#6fae56"/>' +
+    '<circle cx="' + (x + r * .55) + '" cy="' + (y - 14 * s - r * .55) + '" r="' + (r * .58) + '" fill="#559344"/>';
+  if (ready) {
+    for (let i = 0; i < 3; i++) {
+      b += '<circle cx="' + (x + (i - 1) * r * .7) + '" cy="' + (y - 14 * s - r * (i === 1 ? 1.15 : .65)) + '" r="' + (3.2 * s) + '" fill="#e0564f"/>';
+    }
+  }
+  return b;
+}
+
+function fmCropSvg (x, y, prog, ripe, ic) {
+  let b = '<ellipse cx="' + x + '" cy="' + (y + 4) + '" rx="20" ry="7" fill="#b09468"/>';
+  if (prog <= 0.02) return b + '<circle cx="' + x + '" cy="' + (y - 1) + '" r="2.5" fill="#8aa060"/>';
+  const h = 6 + 20 * prog;
+  b += '<path d="M ' + x + ' ' + y + ' C ' + (x - 2) + ' ' + (y - h * .5) + ', ' + (x - 1) + ' ' + (y - h * .8) + ', ' + x + ' ' + (y - h) +
+       '" stroke="#4f8a3c" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+    '<path d="M ' + x + ' ' + (y - h * .45) + ' C ' + (x - 6) + ' ' + (y - h * .6) + ', ' + (x - 9) + ' ' + (y - h * .5) + ', ' + (x - 11) + ' ' + (y - h * .3) +
+       '" stroke="#5f9e4a" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+    '<path d="M ' + x + ' ' + (y - h * .6) + ' C ' + (x + 6) + ' ' + (y - h * .75) + ', ' + (x + 9) + ' ' + (y - h * .65) + ', ' + (x + 11) + ' ' + (y - h * .45) +
+       '" stroke="#5f9e4a" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+  if (ripe) b += '<text x="' + (x + 7) + '" y="' + (y - h - 2) + '" font-size="13">' + (ic || '🥕') + '</text>';
+  return b;
+}
+
+function fmBirdSvg (x, y, duck) {
+  const body = duck ? '#f4f8f8' : '#f7f0dc';
+  return '<g transform="translate(' + x + ',' + y + ')">' +
+    '<ellipse cx="0" cy="0" rx="8" ry="6" fill="' + body + '"/>' +
+    '<circle cx="6" cy="-5" r="4.2" fill="' + body + '"/>' +
+    '<path d="M 10 -5 L 14.5 -4 L 10 -3 Z" fill="#e8913c"/>' +
+    (duck ? '' : '<path d="M 4 -9 Q 6 -12 8 -9" stroke="#d84a3f" stroke-width="1.8" fill="none"/>') +
+    '<circle cx="7" cy="-6" r=".9" fill="#3a3a3a"/>' +
+    '</g>';
+}
+
+function fmFarmerSvg (av, x, y, s) {
+  const list = FARM_AV[(av && av.g) || 'f'];
+  const a = list[Math.min(3, Math.max(0, (av && av.s) || 0))];
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' +
+    '<ellipse cx="0" cy="24" rx="9" ry="3" fill="rgba(70,90,50,.2)"/>' +
+    '<rect x="-4" y="12" width="3.4" height="11" fill="#5a4632"/>' +
+    '<rect x="1" y="12" width="3.4" height="11" fill="#5a4632"/>' +
+    '<rect x="-6" y="0" width="12" height="14" rx="4" fill="' + a.top + '"/>' +
+    '<circle cx="0" cy="-5" r="6" fill="#f2d5b8"/>' +
+    '<path d="M -6 -6 Q 0 -12 6 -6 L 6 -8 Q 0 -14 -6 -8 Z" fill="' + a.hair + '"/>' +
+    '<ellipse cx="0" cy="-9.5" rx="10" ry="2.6" fill="' + a.hat + '"/>' +
+    '<path d="M -5 -10 Q 0 -18 5 -10 Z" fill="' + a.hat + '"/>' +
+    '</g>';
+}
+
+function fmPct (at, ms, now) { return Math.max(0, Math.min(1, (now - at) / ms)); }
+
+function fmPaintScene () {
+  const wrap = $('fmWrap'), svg = $('fmSvg'), tg = $('fmTags');
+  if (!svg) return;
+  const st = FARM.visit ? (FARM.rows[FARM.visit] || farmDummy()) : (FARM.st || farmDummy());
+  const mine = !FARM.visit && !isGuest && FARM.st;
+  const now = Date.now();
+  const night = fmIsNight();
+  wrap.classList.toggle('is-night', night);
+
+  let b = '';
+  /* 岛屿：沙边 + 草面 + 一条小路 */
+  b += '<ellipse cx="450" cy="352" rx="352" ry="206" fill="#e2d3a2"/>';
+  b += '<ellipse cx="450" cy="344" rx="338" ry="196" fill="#b7d489"/>';
+  b += '<ellipse cx="450" cy="338" rx="330" ry="190" fill="#cfe6a3"/>';
+  b += '<path d="M 430 240 C 470 300 470 340 500 430" stroke="#eadfc2" stroke-width="15" fill="none" stroke-linecap="round" opacity=".85"/>';
+  /* 草丛石头小装饰 */
+  b += '<circle cx="180" cy="290" r="5" fill="#9ab86e"/><circle cx="192" cy="296" r="3.4" fill="#a8c47c"/>' +
+       '<circle cx="520" cy="330" r="4.4" fill="#b4b9bc"/><circle cx="529" cy="334" r="3" fill="#c4c9cc"/>' +
+       '<circle cx="330" cy="330" r="4" fill="#9ab86e"/>';
+
+  /* 房子 + 农夫 */
+  b += fmHouseSvg(st.house_lv, 330, 168, 1);
+  b += fmFarmerSvg(st.avatar, 408, 250, 1.25);
+
+  /* 菜地 6 块 */
+  const PP = fmPlotPos();
+  PP.forEach((p, i) => {
+    const locked = i >= st.plots_open;
+    const plot = st.plots[i];
+    if (locked) {
+      b += '<polygon points="' + (p.x) + ',' + (p.y - 26) + ' ' + (p.x + 46) + ',' + p.y + ' ' + p.x + ',' + (p.y + 26) + ' ' + (p.x - 46) + ',' + p.y +
+        '" fill="#d8cfa8" stroke="#b8ad84" stroke-width="1.6" stroke-dasharray="5 4"/>';
+    } else {
+      b += '<polygon points="' + (p.x) + ',' + (p.y - 26) + ' ' + (p.x + 46) + ',' + p.y + ' ' + p.x + ',' + (p.y + 26) + ' ' + (p.x - 46) + ',' + p.y +
+        '" fill="#c9a06a"/>';
+      b += '<polygon points="' + (p.x) + ',' + (p.y - 18) + ' ' + (p.x + 32) + ',' + p.y + ' ' + p.x + ',' + (p.y + 18) + ' ' + (p.x - 32) + ',' + p.y +
+        '" fill="#bd9058"/>';
+      if (plot) {
+        const c = FARM_CROPS[plot.k] || FARM_CROPS.radish;
+        const prog = fmPct(plot.at, c.m * 60000, now);
+        b += fmCropSvg(p.x, p.y + 2, prog, prog >= 1, c.ic);
+      }
+    }
+  });
+
+  /* 果园 4 坑 */
+  const TP = fmTreePos();
+  TP.forEach((p, i) => {
+    const locked = i >= st.trees_open;
+    const tr = st.trees[i];
+    if (locked) { b += '<ellipse cx="' + p.x + '" cy="' + p.y + '" rx="18" ry="8" fill="none" stroke="#b8ad84" stroke-width="1.5" stroke-dasharray="4 4"/>'; }
+    else if (!tr) { b += fmTreeSvg(p.x, p.y, 1, null, false); }
+    else {
+      const c = FARM_TREES[tr.k] || FARM_TREES.apple;
+      const prog = fmPct(tr.at, c.h * 3600000, now);
+      b += fmTreeSvg(p.x, p.y, 1.15, prog, prog >= 1);
+    }
+  });
+
+  /* 池塘 + 鸭 */
+  b += '<ellipse cx="640" cy="238" rx="74" ry="36" fill="#8fcbe0"/><ellipse cx="640" cy="235" rx="60" ry="27" fill="#aadcec"/>';
+  const ducks = st.animals.filter(a => a.k === 'duck');
+  ducks.slice(0, 3).forEach((d, i) => { b += fmBirdSvg(615 + i * 34, 232 + (i % 2) * 12, true); });
+
+  /* 鸡舍 + 鸡 */
+  b += fmHouseSvg(2, 738, 388, .58);
+  const hens = st.animals.filter(a => a.k === 'hen');
+  hens.slice(0, 3).forEach((d, i) => { b += fmBirdSvg(688 + i * 26, 448 + (i % 2) * 8, false); });
+
+  /* 交易商店：小棚子 */
+  b += '<g transform="translate(492,452)">' +
+    '<rect x="-4" y="8" width="4" height="30" fill="#a8805a"/><rect x="34" y="8" width="4" height="30" fill="#a8805a"/>' +
+    '<path d="M -14 10 L 0 -8 L 52 -8 L 66 10 Z" fill="#7fb8c9"/>' +
+    '<path d="M 4 10 L 12 -8 L 24 -8 L 18 10 Z" fill="#e8f2f4"/>' +
+    '<rect x="2" y="18" width="30" height="14" rx="2" fill="#d8c8a8"/>' +
+    '<circle cx="10" cy="16" r="3" fill="#e0564f"/><circle cx="24" cy="16" r="3" fill="#e8b23c"/>' +
+    '</g>';
+
+  /* 林地（右上角一小片树） */
+  b += fmTreeSvg(768, 118, 1.15, 1, false) + fmTreeSvg(818, 152, .95, 1, false) + fmTreeSvg(752, 168, .8, 1, false);
+  b += fmTreeSvg(210, 200, .9, 1, false) + fmTreeSvg(258, 172, 1.05, 1, false);
+
+  svg.innerHTML = b;
+
+  /* ---- 白色小标签（可点的才是按钮） ---- */
+  const tg$ = (x, y, html, cls, ft, fa) =>
+    '<button type="button" class="fm-tag ' + (cls || '') + '" style="left:' + (x / 900 * 100).toFixed(2) + '%;top:' + (y / 640 * 100).toFixed(2) + '%"' +
+    (ft ? ' data-ft="' + ft + '" data-fa="' + fa + '"' : ' tabindex="-1"') + '>' + html + '<i class="tail"></i></button>';
+
+  let t = '';
+  t += tg$(318, 104, '🏠 ' + FARM_HOUSES[st.house_lv - 1], mine ? 'click' : '', mine ? 'home' : '');
+  t += tg$(492, 420, '🏪 商店', mine ? 'click' : '', mine ? 'shop' : '');
+  t += tg$(756, 104, '🧭 林地', mine ? 'click' : '', mine ? 'forest' : '');
+  const readyBirds = st.animals.filter(a => fmPct(a.at, (FARM_BIRDS[a.k] || FARM_BIRDS.hen).h * 3600000, now) >= 1).length;
+  t += tg$(738, 356, '🐔 鸡舍' + (readyBirds ? '·' + readyBirds : ''), mine ? 'click' : '', mine ? 'coop' : '');
+  t += tg$(640, 192, '🦆 鸭湾', mine ? 'click' : '', mine ? 'coop' : '');
+  const treeReady = st.trees.filter((x, i) => x && i < st.trees_open &&
+    fmPct(x.at, (FARM_TREES[x.k] || FARM_TREES.apple).h * 3600000, now) >= 1).length;
+  const treeCnt = st.trees.filter((x, i) => x && i < st.trees_open).length;
+  t += tg$(626, 394, '🍎 果园 ' + treeCnt + '/' + st.trees_open + (treeReady ? '·✓' + treeReady : ''), mine ? 'click' : '', mine ? 'tree' : '');
+  PP.forEach((p, i) => {
+    const plot = st.plots[i];
+    if (i >= st.plots_open) {
+      t += tg$(p.x, p.y - 32, '＋' + FARM_PLOT_COST[i] + '🪙', mine ? 'click lock' : 'lock', mine ? 'plot' : '', i);
+    } else if (!plot) {
+      t += tg$(p.x, p.y - 32, '＋播种', mine ? 'click' : '', mine ? 'plot' : '', i);
+    } else {
+      const c = FARM_CROPS[plot.k] || FARM_CROPS.radish;
+      const prog = fmPct(plot.at, c.m * 60000, now);
+      if (prog >= 1) t += tg$(p.x, p.y - 32, '✓' + c.ic, mine ? 'click ok' : 'ok', mine ? 'plot' : '', i);
+      else t += tg$(p.x, p.y - 32, c.ic + Math.floor(prog * 100) + '%', mine ? 'click' : '', mine ? 'plot' : '', i);
+    }
+  });
+  tg.innerHTML = t;
+}
+
+/* ---- 资源栏 / 群岛 / 参观 ---- */
+
+function fmPaintRes () {
+  const box = $('fmRes');
+  if (!box) return;
+  const st = FARM.st;
+  box.style.display = (!st || FARM.visit || FARM.isles) ? 'none' : '';
+  if (!st) return;
+  box.innerHTML =
+    '<span>🪙 金币 <b>' + st.coins + '</b></span>' +
+    '<span>💧 雨露 <b>' + st.water + '</b>/12</span>' +
+    '<span>❤️ 活力 <b>' + st.vigor + '</b>/10</span>' +
+    '<span>🍃 肥料 <b>' + st.fert + '</b></span>';
+}
+
+function fmIsleSvg (lv) {
+  return '<svg viewBox="0 0 200 110">' +
+    '<ellipse cx="100" cy="66" rx="86" ry="40" fill="#8fcbe0"/>' +
+    '<ellipse cx="100" cy="62" rx="78" ry="36" fill="#cfe6a3"/>' +
+    fmHouseSvg(lv, 100, 42, .52) +
+    fmTreeSvg(48, 78, .6, 1, false) + fmTreeSvg(152, 76, .55, 1, false) +
+    '</svg>';
+}
+
+function fmPaintIsles () {
+  const box = $('fmIsles');
+  if (!box) return;
+  const list = S.members.filter(m => m.uid);
+  box.innerHTML = list.map(m => {
+    const row = FARM.rows[m.uid];
+    const lv = row ? Math.min(4, Math.max(1, row.house_lv)) : 1;
+    return '<button type="button" class="fm-isle" data-uid="' + m.uid + '">' + fmIsleSvg(lv) +
+      '<b>' + esc(m.name) + (m.is_me ? '（我）' : '') + '</b>' +
+      '<em>' + FARM_HOUSES[lv - 1] + (row ? ' · 🪙 ' + row.coins : ' · 还没开荒') + '</em></button>';
+  }).join('');
+}
+
+function fmShowIsles (on) {
+  FARM.isles = on;
+  $('fmIsles').style.display = on ? '' : 'none';
+  $('fmWrap').style.display = on ? 'none' : '';
+  document.querySelectorAll('#fmNav button').forEach(b => b.classList.toggle('on', b.dataset.fn === (on ? 'isles' : 'plot')));
+  if (on) fmPaintIsles();
+  fmPaintRes();
+}
+
+function farmPaint () {
+  fmPaintRes();
+  if (!FARM.isles) fmPaintScene();
+  const v = $('fmVisit');
+  if (FARM.visit) {
+    const m = S.members.find(x => x.uid === FARM.visit);
+    v.style.display = '';
+    $('fmVisitTxt').textContent = '你正在参观 ' + (m ? m.name : '同学') + ' 的农场（只可以看）';
+  } else v.style.display = 'none';
+}
+
+function farmTick () {
+  const fv = $('farmView');
+  if (!fv || !fv.classList.contains('on') || document.hidden) return;
+  farmPaint();
+}
+
+/* ---- 弹层面板 ---- */
+
+function fmPanel (title, sub, html) {
+  $('fmCardT').textContent = title;
+  $('fmCardS').textContent = sub || '';
+  $('fmCardBody').innerHTML = html;
+  $('fmMask').classList.add('on');
+}
+function fmClosePanel () { $('fmMask').classList.remove('on'); FARM.panel = ''; }
+
+function fmItem (ic, name, desc, btns) {
+  return '<div class="fm-item"><span class="fm-ic">' + ic + '</span>' +
+    '<span class="fm-inf"><b>' + name + '</b>' + (desc ? '<em>' + desc + '</em>' : '') + '</span>' +
+    '<span class="fm-btns">' + btns + '</span></div>';
+}
+function fmBtn (txt, act, arg, dis, ghost) {
+  return '<button type="button" data-fa="' + act + (arg == null ? '' : ':' + arg) + '"' + (dis ? ' disabled' : '') +
+    (ghost ? ' class="ghost"' : '') + '>' + txt + '</button>';
+}
+
+function fmVig (st) { return st.vigor > 0; }
+
+function farmOpen (kind) {
+  const st = FARM.st;
+  FARM.panel = kind;
+  if (kind === 'explore') return fmExplore();
+  if (!st) { fmPanel('班级农场', '', '<p class="fm-resTxt">登录之后就能开荒自己的农场啦。</p>'); return; }
+
+  if (kind === 'plot') {
+    const now = Date.now();
+    let h = '';
+    for (let i = 0; i < 6; i++) {
+      if (i >= st.plots_open) {
+        h += fmItem('🟫', '第 ' + (i + 1) + ' 块地 · 未开垦', '开垦要 ' + FARM_PLOT_COST[i] + ' 金币',
+          fmBtn('开垦', 'unlockPlot', i, !(fmVig(st) && st.coins >= FARM_PLOT_COST[i])));
+      } else {
+        const p = st.plots[i];
+        if (!p) {
+          h += fmItem('🌱', '第 ' + (i + 1) + ' 块地 · 空地', '种点什么吧',
+            fmBtn('挑种子', 'seed', i, !fmVig(st)));
+        } else {
+          const c = FARM_CROPS[p.k] || FARM_CROPS.radish;
+          const prog = fmPct(p.at, c.m * 60000, now);
+          if (prog >= 1) {
+            h += fmItem(c.ic, c.n + ' · 熟了', '收获当场卖 ' + c.sell + ' 金币', fmBtn('收获', 'harvest', i, false));
+          } else {
+            const left = Math.ceil((c.m * 60000 * (1 - prog)) / 60000);
+            const act = !p.w ? fmBtn('浇水 −1💧', 'water', i, st.water < 1)
+              : (!p.f ? fmBtn('施肥 −1🍃', 'fert', i, st.fert < 1)
+                : fmBtn('生长中', '', '', true));
+            h += fmItem(c.ic, c.n + ' · ' + Math.floor(prog * 100) + '%',
+              '还差约 ' + (left >= 60 ? Math.ceil(left / 60) + ' 小时' : left + ' 分钟') +
+              (p.w ? ' · 已浇过' : ' · 浇水提速15%') + (p.f ? ' · 已施过肥' : ''), act);
+          }
+        }
+      }
+    }
+    fmPanel('菜地', '作物按真实时间生长；浇水提速 15%，施肥再提速 30%（各一次）', h);
+  }
+
+  if (kind === 'tree') {
+    const now = Date.now();
+    let h = '';
+    for (let i = 0; i < 4; i++) {
+      if (i >= st.trees_open) {
+        h += fmItem('⚪', '果树坑 ' + (i + 1) + ' · 未开垦', '开垦要 ' + FARM_TREE_COST[i] + ' 金币',
+          fmBtn('开垦', 'unlockTree', i, !(fmVig(st) && st.coins >= FARM_TREE_COST[i])));
+      } else {
+        const tr = st.trees[i];
+        if (!tr) {
+          h += fmItem('🕳️', '果树坑 ' + (i + 1) + ' · 空着',
+            '苹果树 24 小时一茬收 44 金币；橘子树 36 小时一茬收 82 金币',
+            fmBtn('苹果树 80🪙', 'plantTree:' + i + ':apple', null, !(fmVig(st) && st.coins >= 80)) +
+            fmBtn('橘子树 140🪙', 'plantTree:' + i + ':orange', null, !(fmVig(st) && st.coins >= 140), true));
+        } else {
+          const c = FARM_TREES[tr.k] || FARM_TREES.apple;
+          const prog = fmPct(tr.at, c.h * 3600000, now);
+          h += prog >= 1
+            ? fmItem(c.ic, c.n + ' · 果子熟了', '摘下来得 ' + c.yield + ' 金币', fmBtn('摘果子', 'pickTree', i, false))
+            : fmItem(c.ic, c.n + ' · ' + Math.floor(prog * 100) + '%', '还差约 ' + Math.ceil(c.h * (1 - prog)) + ' 小时', fmBtn('生长中', '', '', true));
+        }
+      }
+    }
+    fmPanel('果园', '树种一次管长久，到点结果、摘一茬等下一茬', h);
+  }
+
+  if (kind === 'coop') {
+    const now = Date.now();
+    let h = st.animals.length ? '' : '<p class="fm-resTxt">还没有小动物。买一只母鸡或鸭子，到点就能收蛋换金币。</p>';
+    st.animals.forEach((a, i) => {
+      const c = FARM_BIRDS[a.k] || FARM_BIRDS.hen;
+      const prog = fmPct(a.at, c.h * 3600000, now);
+      h += prog >= 1
+        ? fmItem(c.ic, c.n + ' · 有蛋了', '收一窝 ' + c.get + ' 金币', fmBtn('收蛋', 'collect', i, false))
+        : fmItem(c.ic, c.n, '下蛋还差约 ' + Math.ceil(c.h * (1 - prog)) + ' 小时', fmBtn('等待中', '', '', true));
+    });
+    const full = st.animals.length >= 6;
+    h += fmItem('🐔', '买母鸡 · 60 金币', '每 12 小时下一窝蛋，收 14 金币', fmBtn('买一只', 'buy:hen', '', !(fmVig(st) && st.coins >= 60 && !full)));
+    h += fmItem('🦆', '买鸭子 · 85 金币', '每 18 小时下一窝蛋，收 22 金币', fmBtn('买一只', 'buy:duck', '', !(fmVig(st) && st.coins >= 85 && !full)));
+    fmPanel('养殖', '鸡舍和鸭湾一起管，最多养 6 只', h);
+  }
+
+  if (kind === 'shop') {
+    let h = fmItem('🍃', '肥料 · 8 金币', '施肥让作物再提速 30%（每茬一次）', fmBtn('买一袋', 'buyFert', '', st.coins < 8));
+    h += fmItem('🫗', '水壶 · 5 金币', '一口气补 6 点雨露（上限 12）', fmBtn('买一个', 'buyWater', '', st.coins < 5));
+    h += '<p class="fm-resTxt" style="margin-top:10px">收获的作物和蛋当场就卖掉换金币，不用自己摆摊。攒金币去升农舍、开垦新地。</p>';
+    fmPanel('交易商店', '用金币买物资', h);
+  }
+
+  if (kind === 'home') {
+    let h = '';
+    for (let i = 0; i < 4; i++) {
+      const cur = st.house_lv === i + 1;
+      const past = st.house_lv > i + 1;
+      const next = st.house_lv === i;
+      h += fmItem(['🛖', '🏚️', '🏠', '🏰'][i], FARM_HOUSES[i] + (cur ? ' · 正在使用' : ''),
+        cur ? '现在的家' : (past ? '已经住过了' : (next ? '升到这一级要 ' + FARM_HOUSE_COST[i] + ' 金币' : '先升到 ' + FARM_HOUSES[i - 1])),
+        cur ? fmBtn('使用中', '', '', true)
+          : (next ? fmBtn('升级', 'upHouse', i, !(st.coins >= FARM_HOUSE_COST[i]))
+            : (past ? fmBtn('住过了', '', '', true) : fmBtn('未解锁', '', '', true))));
+    }
+    /* 农场主形象 */
+    const av = st.avatar;
+    h += '<p style="margin:14px 0 6px;font-size:13px;font-weight:600">农场主形象</p>' +
+      '<div style="display:flex;gap:6px;margin-bottom:8px">' +
+      ['f', 'b'].map(g => '<button type="button" data-fa="avG:' + g + '" style="flex:1;border:1px solid ' + (av.g === g ? '#3f7ee8' : 'var(--line)') +
+        ';background:' + (av.g === g ? '#eaf1fd' : '#fff') + ';border-radius:9px;font:inherit;font-size:12.5px;padding:7px 0;cursor:pointer;font-weight:' + (av.g === g ? 600 : 400) + '">' +
+        (g === 'f' ? '👧 女孩' : '👦 男孩') + '</button>').join('') + '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">' +
+      FARM_AV[av.g].map((a, s) => {
+        const on = av.s === s;
+        return '<button type="button" data-fa="avS:' + s + '" style="border:1.5px solid ' + (on ? '#3f7ee8' : '#eee3c8') +
+          ';background:' + (on ? '#eaf1fd' : '#fff') + ';border-radius:10px;padding:6px 2px 4px;cursor:pointer;font:inherit">' +
+          '<svg viewBox="-14 -22 28 50" style="width:100%;height:auto">' + fmFarmerSvg({ g: av.g, s: s }, 0, 2, .9) + '</svg>' +
+          '<span style="display:block;font-size:10px;color:' + (on ? '#3f7ee8' : 'var(--text-3)') + '">' + a.nm + '</span></button>';
+      }).join('') + '</div>' +
+      '<p class="fm-resTxt" style="margin-top:8px">形象免费换，保存后小人会站在你的农场里。</p>';
+    fmPanel('我的农舍', '收获换金币，金币升级农舍', h);
+  }
+}
+
+/* ---- 探险 ---- */
+
+function fmExplore () {
+  const st = FARM.st;
+  if (!st) return;
+  const now = Date.now();
+  const cd = st.explore_at ? (now - new Date(st.explore_at).getTime()) : Infinity;
+  if (cd < 3 * 3600000) {
+    const left = Math.ceil((3 * 3600000 - cd) / 60000);
+    fmPanel('林地·探索', '', '<p class="fm-big">🌲</p><p class="fm-resTxt">小路还没缓过来，<br>再等约 ' + (left >= 60 ? Math.ceil(left / 60) + ' 小时' : left + ' 分钟') + ' 再进去吧。</p>');
+    return;
+  }
+  if (!fmVig(st)) { fmPanel('林地·探索', '', '<p class="fm-big">😮‍💨</p><p class="fm-resTxt">活力用完了，歇两个小时再来探险。</p>'); return; }
+  st.vigor--; st.explore_at = new Date(now).toISOString();
+  const roll = Math.random();
+  let ic, txt;
+  if (roll < .38) {
+    const got = 12 + Math.floor(Math.random() * 30);
+    st.coins += got; ic = '🧰'; txt = '发现一个小宝箱！<br>打开得到 <b>' + got + '</b> 金币。';
+  } else if (roll < .6) {
+    const got = Math.random() < .4 ? 2 : 1;
+    st.fert += got; ic = '🍃'; txt = '林子里有一袋被人落下的肥料。<br><b>肥料 +' + got + '</b>。';
+  } else if (roll < .8) {
+    st.water = 12; ic = '🫗'; txt = '找到一眼山泉，把水壶灌满了。<br><b>雨露已补满</b>。';
+  } else {
+    ic = '🪨'; txt = '走了半天，只捡到一颗<br>好看的石头。也不亏。';
+  }
+  farmSave(); farmPaint();
+  fmPanel('林地·探索', '小桥另一边', '<p class="fm-big">' + ic + '</p><p class="fm-resTxt">' + txt + '</p>' +
+    '<div style="text-align:center"><button type="button" class="fm-x" style="width:auto;padding:9px 26px;border-radius:10px;background:#3f7ee8;color:#fff;font:inherit;font-size:13.5px" data-fa="closeOk">好嘞</button></div>');
+}
+
+/* ---- 玩法动作 ---- */
+
+function fmSpendVig () {
+  const st = FARM.st;
+  if (st.vigor <= 0) { toast('活力用完了，歇两个小时再来'); return false; }
+  st.vigor--; return true;
+}
+
+function fmPlotQuick (i) {
+  const st = FARM.st;
+  if (!st) return;
+  if (i >= st.plots_open) {
+    if (st.coins < FARM_PLOT_COST[i]) { toast('开垦这块地要 ' + FARM_PLOT_COST[i] + ' 金币，先去收获几茬吧'); return; }
+    if (!fmSpendVig()) return;
+    st.coins -= FARM_PLOT_COST[i]; st.plots_open = i + 1;
+    toast('开垦好了，这块地能种了');
+  } else {
+    const p = st.plots[i];
+    if (!p) return fmSeedPanel(i);
+    const c = FARM_CROPS[p.k] || FARM_CROPS.radish;
+    const prog = fmPct(p.at, c.m * 60000, Date.now());
+    if (prog >= 1) {
+      st.coins += c.sell; st.plots[i] = null;
+      toast(c.n + ' 卖了 ' + c.sell + ' 金币 🪙');
+    } else if (!p.w) {
+      if (st.water < 1) { toast('雨露不够了，等它自己回或者去商店买水壶'); return; }
+      st.water--; p.w = true; p.at -= c.m * 60000 * .15;
+      toast('浇过水了，' + c.n + '提了提速');
+    } else if (!p.f) {
+      if (st.fert < 1) { toast('没有肥料，商店有卖（8 金币）'); return; }
+      st.fert--; p.f = true; p.at -= c.m * 60000 * .3;
+      toast('施肥了，' + c.n + '蹭蹭长');
+    } else { toast('水肥都齐了，等它慢慢长'); return; }
+  }
+  farmSave(); farmPaint();
+}
+
+function fmTreeQuick (i) {
+  const st = FARM.st;
+  if (!st) return;
+  if (i >= st.trees_open) {
+    if (st.coins < FARM_TREE_COST[i]) { toast('开垦这个坑要 ' + FARM_TREE_COST[i] + ' 金币'); return; }
+    if (!fmSpendVig()) return;
+    st.coins -= FARM_TREE_COST[i]; st.trees_open = i + 1;
+    toast('坑挖好了，可以种树了');
+  } else {
+    const tr = st.trees[i];
+    if (!tr) return farmOpen('tree');
+    const c = FARM_TREES[tr.k] || FARM_TREES.apple;
+    if (fmPct(tr.at, c.h * 3600000, Date.now()) >= 1) {
+      st.coins += c.yield; tr.at = Date.now();
+      toast(c.n + '摘了一茬，+' + c.yield + ' 金币 🪙');
+      farmSave(); farmPaint();
+    } else farmOpen('tree');
+  }
+}
+
+/* 弹层里的动作（data-fa，格式 act:a1:a2） */
+async function fmDo (act, a1, a2) {
+  const st = FARM.st;
+  if (isGuest) { toast('登录后才能经营农场'); return; }
+  if (act === 'closeOk') { fmClosePanel(); farmPaint(); return; }
+  if (!st) return;
+  const i = a1 != null && a1 !== '' ? parseInt(a1, 10) : NaN;
+  const reopen = () => { if (FARM.panel && FARM.panel !== 'explore') farmOpen(FARM.panel); };
+
+  if (act === 'unlockPlot' && fmSpendVig()) {
+    if (st.coins < FARM_PLOT_COST[i]) { toast('金币不够'); st.vigor++; return; }
+    st.coins -= FARM_PLOT_COST[i]; st.plots_open = Math.max(st.plots_open, i + 1);
+    toast('开垦好了');
+  } else if (act === 'seed') { FARM.panel = 'seed'; return fmSeedPanel(i);
+  } else if (act === 'plant' && fmSpendVig()) {
+    const c = FARM_CROPS[a2];
+    if (!c) return;
+    if (st.coins < c.buy) { toast('买这包种子要 ' + c.buy + ' 金币'); st.vigor++; return; }
+    st.coins -= c.buy;
+    st.plots[i] = { k: a2, at: Date.now(), w: false, f: false };
+    toast(c.n + '种下去了，' + (c.m >= 60 ? (c.m / 60) + ' 小时' : c.m + ' 分钟') + '后熟');
+  } else if (act === 'water') {
+    const p = st.plots[i];
+    if (p && !p.w && st.water >= 1) {
+      const c = FARM_CROPS[p.k];
+      st.water--; p.w = true; p.at -= c.m * 60000 * .15;
+      toast('浇过水了');
+    } else toast('现在浇不了');
+  } else if (act === 'fert') {
+    const p = st.plots[i];
+    if (p && !p.f && st.fert >= 1) {
+      const c = FARM_CROPS[p.k];
+      st.fert--; p.f = true; p.at -= c.m * 60000 * .3;
+      toast('施肥了');
+    } else toast('现在施不了');
+  } else if (act === 'harvest') {
+    const p = st.plots[i];
+    if (p) {
+      const c = FARM_CROPS[p.k] || FARM_CROPS.radish;
+      st.coins += c.sell; st.plots[i] = null;
+      toast(c.n + ' 卖了 ' + c.sell + ' 金币 🪙');
+    }
+  } else if (act === 'unlockTree' && fmSpendVig()) {
+    if (st.coins < FARM_TREE_COST[i]) { toast('金币不够'); st.vigor++; return; }
+    st.coins -= FARM_TREE_COST[i]; st.trees_open = Math.max(st.trees_open, i + 1);
+    toast('坑挖好了');
+  } else if (act === 'plantTree' && fmSpendVig()) {
+    const c = FARM_TREES[a2];
+    if (!c) return;
+    if (st.coins < c.buy) { toast('买这棵树苗要 ' + c.buy + ' 金币'); st.vigor++; return; }
+    st.coins -= c.buy; st.trees[i] = { k: a2, at: Date.now() };
+    toast(c.n + '种下了，' + c.h + ' 小时后结果');
+  } else if (act === 'pickTree') {
+    const tr = st.trees[i];
+    if (tr) {
+      const c = FARM_TREES[tr.k] || FARM_TREES.apple;
+      if (fmPct(tr.at, c.h * 3600000, Date.now()) >= 1) {
+        st.coins += c.yield; tr.at = Date.now();
+        toast('摘了一茬，+' + c.yield + ' 金币 🪙');
+      }
+    }
+  } else if (act === 'collect') {
+    const a = st.animals[i];
+    if (a) {
+      const c = FARM_BIRDS[a.k] || FARM_BIRDS.hen;
+      if (fmPct(a.at, c.h * 3600000, Date.now()) >= 1) {
+        st.coins += c.get; a.at = Date.now();
+        toast('收了一窝蛋，+' + c.get + ' 金币 🪙');
+      } else toast('还没下好呢');
+    }
+  } else if (act === 'buy') {
+    const c = FARM_BIRDS[a1];
+    if (c && st.animals.length < 6 && st.coins >= c.buy && fmSpendVig()) {
+      st.coins -= c.buy; st.animals.push({ k: a1, at: Date.now() });
+      toast(c.n + '搬进农场了');
+    } else if (st.animals.length >= 6) toast('最多养 6 只，先收收蛋');
+  } else if (act === 'buyFert') {
+    if (st.coins >= 8) { st.coins -= 8; st.fert++; toast('肥料 +1'); }
+  } else if (act === 'buyWater') {
+    if (st.coins >= 5) {
+      const got = Math.min(6, 12 - st.water);
+      st.coins -= 5; st.water += got;
+      toast(got > 0 ? ('雨露 +' + got) : '雨露已经是满的啦');
+    }
+  } else if (act === 'upHouse') {
+    if (st.coins >= FARM_HOUSE_COST[i] && i === st.house_lv) {
+      st.coins -= FARM_HOUSE_COST[i]; st.house_lv = i + 1;
+      toast('搬进' + FARM_HOUSES[i] + '啦！🏡');
+    }
+  } else if (act === 'avG') {
+    st.avatar.g = a1 === 'b' ? 'b' : 'f';
+    farmSave(); farmPaint(); reopen(); return;
+  } else if (act === 'avS') {
+    st.avatar.s = Math.min(3, Math.max(0, parseInt(a1, 10) || 0));
+    farmSave(); farmPaint(); reopen(); return;
+  } else return;
+
+  farmSave(); farmPaint(); reopen();
+}
+
+function fmSeedPanel (i) {
+  FARM.panel = 'seed';
+  const st = FARM.st;
+  let h = '';
+  Object.keys(FARM_CROPS).forEach(k => {
+    const c = FARM_CROPS[k];
+    h += fmItem(c.ic, c.n + ' 种子 · ' + c.buy + ' 金币',
+      (c.m >= 60 ? (c.m / 60) + ' 小时' : c.m + ' 分钟') + '成熟，收获卖 ' + c.sell + ' 金币',
+      fmBtn('播种', 'plant:' + i + ':' + k, null, !(st && st.coins >= c.buy && st.vigor > 0)));
+  });
+  fmPanel('挑种子', '种到第 ' + (i + 1) + ' 块地', h);
+}
+
+/* ---- 参观别人的农场 ---- */
+
+function farmVisit (uid) {
+  if (uid === myUid) { FARM.visit = ''; fmShowIsles(false); farmPaint(); return; }
+  if (!FARM.rows[uid]) { toast('TA 还没开荒自己的农场'); return; }
+  FARM.visit = uid;
+  fmShowIsles(false);
+  farmPaint();
+}
+
+/* ---- 事件绑定 ---- */
+
+$('parkTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-pt]');
+  if (!b || b.classList.contains('on')) return;
+  document.querySelectorAll('#parkTabs button').forEach(x => x.classList.toggle('on', x === b));
+  const farm = b.dataset.pt === 'farm';
+  $('parkPlaza').style.display = farm ? 'none' : '';
+  $('farmView').classList.toggle('on', farm);
+  if (farm) { fmShowIsles(false); farmEnter(); }
+});
+
+$('fmNav').addEventListener('click', e => {
+  const b = e.target.closest('[data-fn]');
+  if (!b) return;
+  const k = b.dataset.fn;
+  if (k === 'isles') { fmShowIsles(!FARM.isles); return; }
+  if (FARM.isles) fmShowIsles(false);
+  document.querySelectorAll('#fmNav button').forEach(x => x.classList.toggle('on', x === b));
+  farmOpen(k);
+});
+
+$('fmTags').addEventListener('click', e => {
+  const t = e.target.closest('[data-ft]');
+  if (!t) return;
+  if (isGuest) { toast('登录后才能经营农场'); return; }
+  if (FARM.visit) return;
+  const i = t.dataset.fa;
+  switch (t.dataset.ft) {
+    case 'plot':   fmPlotQuick(parseInt(i, 10)); break;
+    case 'tree':   fmTreeQuick(parseInt(i, 10)); break;
+    case 'home':   farmOpen('home'); break;
+    case 'shop':   farmOpen('shop'); break;
+    case 'coop':   farmOpen('coop'); break;
+    case 'forest': farmOpen('explore'); break;
+  }
+});
+
+$('fmCardBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-fa]');
+  if (!b || b.disabled) return;
+  const parts = b.dataset.fa.split(':');
+  fmDo(parts[0], parts[1], parts[2]);
+});
+
+$('fmClose').addEventListener('click', fmClosePanel);
+$('fmMask').addEventListener('click', e => { if (e.target === $('fmMask')) fmClosePanel(); });
+$('fmVisitBack').addEventListener('click', () => { FARM.visit = ''; farmPaint(); });
+$('fmIsles').addEventListener('click', e => {
+  const c = e.target.closest('[data-uid]');
+  if (c) farmVisit(c.dataset.uid);
 });
 
 /* ---------- 4.57 班级相册 ----------
