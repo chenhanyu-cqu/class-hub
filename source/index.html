@@ -2377,7 +2377,7 @@ body.no-motion{scroll-behavior:auto;}
 
 /* 版本号：每次发布前手动改一下这里的日期时间，用来判断同学看到的是不是最新版。
    页面右上角（登录后）/ 登录按钮下方（未登录）会显示这串数字。 */
-const BUILD = 'b2026-11-03 11:44';
+const BUILD = 'b2026-11-03 16:58';
 
 /* 把版本号写到页面上所有 data-ver 的位置 */
 function paintVer () {
@@ -3712,7 +3712,8 @@ function calOpen (key) {
     ebox.innerHTML = '<p class="ct-hd"><i style="background:#2a61c9"></i>这天的班级行程（' + evs.length + ' 条）</p>' +
       evs.map(v => {
         const soft = CAL_SOFT[v.color] || CAL_SOFT.blue;
-        const x = (!isGuest && isCommittee())
+        const mine = !isGuest && myUid && v.created_by === myUid;
+        const x = mine
           ? '<button type="button" class="ct-x" data-cid="' + v.id + '" title="删掉这条">✕</button>' : '';
         return '<div class="ct-item"><i style="background:' + soft[1] + '"></i><span>' +
           esc(v.note) + '</span>' + x + '</div>';
